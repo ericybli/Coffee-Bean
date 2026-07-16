@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<style>
+body{margin:0;background:#0d0c0b;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+a{color:oklch(0.75 0.15 60)}a:hover{color:oklch(0.82 0.13 60)}
+*{-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:28px 16px">
+  <div style="width:393px;height:852px;border-radius:47px;border:6px solid #2a2724;background:#131110;position:relative;display:flex;flex-direction:column;overflow:hidden;user-select:none">
+
+    <!-- status bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 30px 4px;color:#f2ede6;font-size:14px;font-weight:600;flex:none"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+
+    <sc-if value="{{inApp}}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+    <!-- header -->
+    <div style="padding:6px 20px 0;display:flex;justify-content:space-between;align-items:center;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onClick="{{toggleCal}}">
+        <span style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">{{headerTitle}}</span>
+        <sc-if value="{{showDateHeader}}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;color:{{calArrowColor}}">{{calArrow}}</span></sc-if>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <sc-if value="{{showBackToday}}" hint-placeholder-val="{{ false }}"><span onClick="{{goToday}}" style="padding:6px 13px;border-radius:13px;background:oklch(0.75 0.15 60 / .14);border:1px solid oklch(0.75 0.15 60 / .35);color:oklch(0.85 0.1 60);font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer">Today</span></sc-if>
+        <svg width="26" height="26" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="5"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="5" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+        <div onClick="{{openSettings}}" style="width:30px;height:30px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:14px;cursor:pointer">⚙</div>
+      </div>
+    </div>
+
+    <!-- week strip -->
+    <sc-if value="{{showDateHeader}}" hint-placeholder-val="{{ true }}">
+      <div style="flex:none" onTouchStart="{{weekTouchStart}}" onTouchEnd="{{weekTouchEnd}}" onMouseDown="{{weekMouseDown}}" onMouseUp="{{weekMouseUp}}">
+        <div style="margin:12px 14px 0;display:flex;justify-content:space-between;padding:0 8px">
+          <sc-for list="{{weekDays}}" as="d" hint-placeholder-count="7">
+            <div onClick="{{d.onTap}}" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px;position:relative;cursor:pointer;opacity:{{d.opacity}}">
+              <sc-if value="{{d.isToday}}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-8px;width:4px;height:4px;border-radius:50%;background:oklch(0.75 0.15 60)"></span></sc-if>
+              <span style="font-size:10px;font-weight:600;color:{{d.lc}};white-space:nowrap">{{d.letter}}</span>
+              <div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:{{d.bg}};border:{{d.border}};color:#26190a;box-shadow:{{d.ring}}">{{d.mark}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin:6px 20px 0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:rgba(242,237,230,.35)">
+          <span onClick="{{prevWeek}}" style="cursor:pointer;padding:2px 8px">‹ Prev week</span>
+          <span style="white-space:nowrap">{{weekLabel}}</span>
+          <span onClick="{{nextWeek}}" style="cursor:pointer;padding:2px 8px;opacity:{{nextWeekOpacity}}">Next week ›</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- content -->
+    <div style="flex:1;overflow-y:auto;padding-bottom:10px">
+
+      <!-- FOOD -->
+      <sc-if value="{{isFood}}" hint-placeholder-val="{{ true }}">
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px 20px">
+          <div style="font-size:15px;font-weight:700;color:#f2ede6;white-space:nowrap">Calories</div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">
+            <div style="display:flex;align-items:baseline;gap:6px;white-space:nowrap">
+              <span style="font-size:32px;font-weight:800;letter-spacing:-0.03em;color:#f2ede6;font-variant-numeric:tabular-nums">{{calConsumed}}</span>
+              <span style="font-size:15px;font-weight:600;color:#f2ede6">cal</span>
+              <span style="font-size:14px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">/ {{calTargetFmt}}</span>
+              <span style="font-size:15px">🔥</span>
+            </div>
+            <div style="white-space:nowrap"><span style="font-size:22px;font-weight:800;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">{{calLeft}}</span> <span style="font-size:12px;color:rgba(242,237,230,.45)">{{calLeftLabel}}</span></div>
+          </div>
+          <div style="margin-top:12px;height:9px;border-radius:5px;background:rgba(255,255,255,.08)"><div style="width:{{calPct}};height:9px;border-radius:5px;background:oklch(0.75 0.15 60);transition:width .35s"></div></div>
+          <div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:8px;white-space:nowrap">TDEE 2,460 (est.) · {{surplus}} kcal surplus</div>
+        </div>
+
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px 20px;display:flex;gap:16px">
+          <sc-for list="{{macros}}" as="m" hint-placeholder-count="3">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:#f2ede6;white-space:nowrap">{{m.name}}</div>
+              <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;white-space:nowrap"><span style="font-size:18px;font-weight:800;color:#f2ede6;font-variant-numeric:tabular-nums">{{m.val}} g</span><span style="font-size:11px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">/ {{m.target}}</span></div>
+              <div style="margin-top:8px;height:7px;border-radius:4px;background:rgba(255,255,255,.08)"><div style="width:{{m.pct}};height:7px;border-radius:4px;background:{{m.color}};transition:width .35s"></div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:6px 18px">
+          <sc-for list="{{meals}}" as="m" hint-placeholder-count="5">
+            <div style="border-bottom:1px solid rgba(255,255,255,.06)">
+              <div onClick="{{m.onToggle}}" style="display:flex;align-items:center;gap:12px;padding:11px 0;cursor:pointer">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;color:{{m.titleColor}};white-space:nowrap">{{m.name}} <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">{{m.kcalLabel}}</span> <span style="font-size:10px;color:rgba(242,237,230,.3)">{{m.chev}}</span></div>
+                  <div style="font-size:11px;color:rgba(242,237,230,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{m.sub}}</div>
+                </div>
+                <span onClick="{{m.onAdd}}" style="width:28px;height:28px;flex:none;border-radius:50%;background:oklch(0.75 0.15 60 / .14);border:1px solid oklch(0.75 0.15 60 / .35);display:flex;align-items:center;justify-content:center;color:oklch(0.85 0.1 60);font-size:15px;cursor:pointer">＋</span>
+              </div>
+              <sc-if value="{{m.expanded}}" hint-placeholder-val="{{ false }}">
+                <div style="padding:0 0 10px">
+                  <sc-for list="{{m.entries}}" as="e" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 12px;border-left:2px solid rgba(255,255,255,.08);margin-left:2px">
+                      <div style="flex:1;font-size:13px;color:rgba(242,237,230,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{e.name}}</div>
+                      <span style="font-size:12px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums;white-space:nowrap">{{e.kcal}} kcal</span>
+                      <span onClick="{{e.onDel}}" style="width:24px;height:24px;flex:none;border-radius:50%;background:oklch(0.68 0.15 25 / .13);display:flex;align-items:center;justify-content:center;color:oklch(0.7 0.15 25);font-size:11px;cursor:pointer">✕</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{m.empty}}" hint-placeholder-val="{{ false }}"><div style="padding:4px 0 0 14px;font-size:11px;color:rgba(242,237,230,.35)">Nothing here yet — tap ＋ to add</div></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="padding:10px 0;text-align:center;font-size:11px;color:rgba(242,237,230,.35)">Swipe the week strip to change weeks · tap a day to jump</div>
+        </div>
+      </sc-if>
+
+      <!-- WATER -->
+      <sc-if value="{{isWater}}" hint-placeholder-val="{{ false }}">
+        <div style="margin:14px 20px 0;display:flex;justify-content:center">
+          <div style="position:relative;width:180px;height:180px">
+            <svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="76" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="15"></circle><circle cx="90" cy="90" r="76" fill="none" stroke="oklch(0.75 0.11 240)" stroke-width="15" stroke-linecap="round" stroke-dasharray="{{waterDash}}" transform="rotate(-90 90 90)" style="transition:stroke-dasharray .4s"></circle></svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+              <div style="font-size:34px;font-weight:800;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1;white-space:nowrap">{{waterPctLabel}}</div>
+              <div style="font-size:14px;font-weight:600;color:oklch(0.8 0.08 240);font-variant-numeric:tabular-nums;white-space:nowrap">{{waterAmt}}</div>
+              <div style="font-size:11px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums;white-space:nowrap">of {{waterTargetLabel}}</div>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{waterDone}}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:oklch(0.72 0.13 150);margin-top:4px">Daily goal reached</div></sc-if>
+        <div style="margin:12px 20px 0;display:flex;justify-content:flex-end"><span onClick="{{openEditPresets}}" style="font-size:11px;color:rgba(242,237,230,.5);cursor:pointer;white-space:nowrap">Edit presets ›</span></div>
+        <div style="margin:6px 20px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <sc-for list="{{waterPresets}}" as="p" hint-placeholder-count="3">
+            <div onClick="{{p.onTap}}" style="text-align:center;padding:14px 0;border-radius:16px;background:oklch(0.75 0.11 240 / .13);border:1px solid oklch(0.75 0.11 240 / .35);cursor:pointer" style-active="transform:scale(.95)">
+              <div style="font-size:20px;color:oklch(0.8 0.08 240)">{{p.icon}}</div>
+              <div style="font-size:13px;font-weight:700;color:oklch(0.85 0.07 240);font-variant-numeric:tabular-nums;white-space:nowrap">{{p.label}}</div>
+              <div style="font-size:9px;color:rgba(242,237,230,.4);white-space:nowrap">{{p.name}}</div>
+            </div>
+          </sc-for>
+          <div onClick="{{openCustom}}" style="text-align:center;padding:14px 0;border-radius:16px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.18);cursor:pointer">
+            <div style="font-size:20px;color:rgba(242,237,230,.6)">＋</div>
+            <div style="font-size:13px;font-weight:700;color:rgba(242,237,230,.7);white-space:nowrap">Custom</div>
+            <div style="font-size:9px;color:rgba(242,237,230,.4);white-space:nowrap">any drink · any size</div>
+          </div>
+        </div>
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:6px 18px">
+          <sc-if value="{{waterLogEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding:14px 0;text-align:center;font-size:12px;color:rgba(242,237,230,.35)">No water logged this day · tap a preset to add</div></sc-if>
+          <sc-for list="{{waterLog}}" as="w" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">{{w.time}}</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">{{w.label}}</div><span onClick="{{w.onDel}}" style="width:24px;height:24px;flex:none;border-radius:50%;background:oklch(0.68 0.15 25 / .13);display:flex;align-items:center;justify-content:center;color:oklch(0.7 0.15 25);font-size:11px;cursor:pointer">✕</span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- BODY -->
+      <sc-if value="{{isBody}}" hint-placeholder-val="{{ false }}">
+        <div style="margin:14px 20px 0;display:flex;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:3px">
+          <sc-for list="{{bodyRanges}}" as="r" hint-placeholder-count="5">
+            <div onClick="{{r.onTap}}" style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:12px;font-weight:700;color:{{r.fg}};background:{{r.bg}};cursor:pointer;white-space:nowrap;transition:background .2s">{{r.label}}</div>
+          </sc-for>
+        </div>
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">Trend weight</div><div style="font-size:34px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1.1;white-space:nowrap">{{trendW}} <span style="font-size:15px;font-weight:500;color:rgba(242,237,230,.5)">{{wUnit}}</span></div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">Weekly rate</div><div style="font-size:17px;font-weight:700;color:oklch(0.72 0.13 150);font-variant-numeric:tabular-nums;white-space:nowrap">{{weekRate}} {{wUnit}}/wk</div><div style="font-size:10px;color:rgba(242,237,230,.4);white-space:nowrap">target {{rateRange}} · in range</div></div>
+          </div>
+          <svg width="100%" height="140" viewBox="0 0 320 140" style="margin-top:10px">
+            <rect x="0" y="30" width="320" height="36" fill="oklch(0.72 0.13 150 / .06)"></rect>
+            <line x1="0" y1="35" x2="320" y2="35" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="75" x2="320" y2="75" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="115" x2="320" y2="115" stroke="rgba(255,255,255,.05)"></line>
+            <sc-for list="{{wDots}}" as="p" hint-placeholder-count="8"><circle cx="{{p.x}}" cy="{{p.y}}" r="2" fill="rgba(242,237,230,.22)"></circle></sc-for>
+            <polyline points="{{trendPts}}" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+            <span style="font-size:10px;color:rgba(242,237,230,.4);white-space:nowrap">{{rangeCaption}} · trend lags the scale ⓘ</span>
+            <span onClick="{{openWeight}}" style="padding:7px 14px;border-radius:12px;background:oklch(0.75 0.15 60);color:#26190a;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer">+ Log weight</span>
+          </div>
+        </div>
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">Waist</div><div style="font-size:26px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1.15;white-space:nowrap">{{waistNow}} <span style="font-size:13px;font-weight:500;color:rgba(242,237,230,.5)">{{waistUnit}}</span></div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">vs last week</div><div style="font-size:15px;font-weight:700;color:oklch(0.72 0.13 150);font-variant-numeric:tabular-nums;white-space:nowrap">{{waistDelta}} {{waistUnit}}</div></div>
+          </div>
+          <svg width="100%" height="70" viewBox="0 0 320 70" style="margin-top:8px">
+            <line x1="0" y1="20" x2="320" y2="20" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="50" x2="320" y2="50" stroke="rgba(255,255,255,.05)"></line>
+            <sc-for list="{{waistDots}}" as="p" hint-placeholder-count="8"><circle cx="{{p.x}}" cy="{{p.y}}" r="2" fill="rgba(242,237,230,.22)"></circle></sc-for>
+            <polyline points="{{waistPts}}" fill="none" stroke="oklch(0.75 0.11 190)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          </svg>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+            <span style="font-size:10px;color:rgba(242,237,230,.4);white-space:nowrap">{{rangeCaption}} · morning, relaxed</span>
+            <span onClick="{{openWaist}}" style="padding:7px 14px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f2ede6;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer">+ Log waist</span>
+          </div>
+        </div>
+        <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:15px;font-weight:700;color:#f2ede6;white-space:nowrap">DEXA Scans</span><span onClick="{{openDexa}}" style="font-size:12px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap;cursor:pointer">+ Add</span></div>
+          <sc-for list="{{dexaScans}}" as="dx" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">{{dx.dateLabel}}</div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">{{dx.sub}}</div></div>
+              <sc-if value="{{dx.auth}}" hint-placeholder-val="{{ false }}"><span style="font-size:9px;padding:2px 6px;border-radius:4px;background:oklch(0.75 0.15 60 / .15);border:1px solid oklch(0.75 0.15 60 / .35);color:oklch(0.85 0.1 60);font-weight:600;white-space:nowrap">RMR source</span></sc-if>
+              <span style="color:rgba(242,237,230,.3)">›</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin:10px 20px 0;text-align:center;font-size:10px;color:rgba(242,237,230,.35)">BMI 22.3 · context only — misleads for muscular users</div>
+      </sc-if>
+
+      <!-- TRAIN -->
+      <sc-if value="{{isTrain}}" hint-placeholder-val="{{ false }}">
+        <div style="margin:14px 20px 0;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">CARDIO</div>
+        <div style="margin:8px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">Cardio volume</div><div style="font-size:28px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1.15;white-space:nowrap">{{cardioTotalMin}} <span style="font-size:13px;font-weight:500;color:rgba(242,237,230,.5)">min</span></div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">vs last cardio day</div><div style="font-size:16px;font-weight:700;color:{{cardioDeltaColor}};font-variant-numeric:tabular-nums;white-space:nowrap">{{cardioDelta}} min</div><div style="font-size:10px;color:rgba(242,237,230,.4);white-space:nowrap">~{{cardioKcalTotal}} kcal burned</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px;height:60px;margin-top:12px;padding:0 4px">
+            <sc-for list="{{cardioBars}}" as="cb" hint-placeholder-count="8">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end">
+                <div style="width:100%;max-width:26px;height:{{cb.h}};border-radius:5px 5px 2px 2px;background:{{cb.bg}}"></div>
+                <span style="font-size:8px;color:rgba(242,237,230,.35);white-space:nowrap">{{cb.label}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:10px;color:rgba(242,237,230,.4);margin:8px 0 2px;white-space:nowrap">Minutes per day · last 8 days</div>
+          <sc-if value="{{cardioEmpty}}" hint-placeholder-val="{{ false }}"><div style="padding:10px 0 2px;text-align:center;font-size:12px;color:rgba(242,237,230,.35)">No cardio this day</div></sc-if>
+          <sc-for list="{{cardioEntries}}" as="ce" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">{{ce.type}}</div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">{{ce.min}} min · ~{{ce.kcal}} kcal</div></div>
+              <span onClick="{{ce.onDel}}" style="width:24px;height:24px;flex:none;border-radius:50%;background:oklch(0.68 0.15 25 / .13);display:flex;align-items:center;justify-content:center;color:oklch(0.7 0.15 25);font-size:11px;cursor:pointer">✕</span>
+            </div>
+          </sc-for>
+          <div onClick="{{openCardio}}" style="margin-top:10px;text-align:center;padding:9px;border-radius:11px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.14);color:rgba(242,237,230,.55);font-size:12px;font-weight:600;cursor:pointer">+ Add cardio</div>
+        </div>
+
+        <div style="margin:20px 20px 0;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">WEIGHTS · 5-DAY SPLIT</div>
+        <div style="margin:8px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+          <div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">{{planLabel}}</div>
+          <div style="font-size:22px;font-weight:700;color:#f2ede6;letter-spacing:-0.02em;white-space:nowrap">{{routineName}}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+            <sc-for list="{{routineChips}}" as="rc" hint-placeholder-count="6">
+              <span onClick="{{rc.onTap}}" style="padding:6px 11px;border-radius:12px;background:{{rc.bg}};border:1px solid {{rc.bd}};color:{{rc.fg}};font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer">{{rc.label}}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{isRest}}" hint-placeholder-val="{{ false }}">
+          <div style="margin:12px 20px 0;background:#1d1a17;border:1px dashed rgba(255,255,255,.14);border-radius:20px;padding:28px 20px;text-align:center">
+            <div style="font-size:15px;font-weight:700;color:rgba(242,237,230,.7)">Rest day</div>
+            <div style="font-size:12px;color:rgba(242,237,230,.4);margin-top:4px">Recovery counts too — or pick a routine above to plan a session.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{notRest}}" hint-placeholder-val="{{ true }}">
+          <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">Session volume</div><div style="font-size:28px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1.15;white-space:nowrap">{{volume}} <span style="font-size:13px;font-weight:500;color:rgba(242,237,230,.5)">{{wUnit}}</span></div></div>
+              <div style="text-align:right"><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">vs last {{routineName}}</div><div style="font-size:16px;font-weight:700;color:{{volDeltaColor}};font-variant-numeric:tabular-nums;white-space:nowrap">{{volDelta}} {{wUnit}} · {{volDeltaPct}}</div></div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:74px;margin-top:14px;padding:0 4px">
+              <sc-for list="{{volBars}}" as="b" hint-placeholder-count="8">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end">
+                  <div style="width:100%;max-width:26px;height:{{b.h}};border-radius:5px 5px 2px 2px;background:{{b.bg}}"></div>
+                  <span style="font-size:8px;color:rgba(242,237,230,.35);white-space:nowrap">{{b.label}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:8px;white-space:nowrap">Last 8 {{routineName}} sessions · this one highlighted</div>
+          </div>
+
+          <sc-for list="{{exercises}}" as="ex" hint-placeholder-count="3">
+            <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                <span style="font-size:15px;font-weight:700;color:#f2ede6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ex.name}}</span>
+                <span onClick="{{ex.onRemove}}" style="width:24px;height:24px;flex:none;border-radius:50%;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.35);font-size:11px;cursor:pointer">✕</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:2px"><span style="font-size:11px;color:rgba(242,237,230,.4);white-space:nowrap">Last time {{ex.lastLabel}}</span><span style="font-size:11px;font-weight:600;color:{{ex.deltaColor}};font-variant-numeric:tabular-nums;white-space:nowrap">{{ex.vol}} {{wUnit}} · {{ex.delta}}</span></div>
+              <div style="display:grid;grid-template-columns:24px 96px 96px 1fr;gap:8px;align-items:center;margin-top:8px;font-size:10px;color:rgba(242,237,230,.4)"><span>SET</span><span style="text-align:center">{{setUnitHdr}}</span><span style="text-align:center">REPS</span><span></span></div>
+              <sc-for list="{{ex.sets}}" as="s" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:24px 96px 96px 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                  <span style="font-size:11px;color:rgba(242,237,230,.55);font-weight:600">{{s.idx}}</span>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px"><span onClick="{{s.decW}}" style="width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.6);font-size:13px;cursor:pointer">−</span><span style="font-size:14px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:36px;text-align:center">{{s.w}}</span><span onClick="{{s.incW}}" style="width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.6);font-size:13px;cursor:pointer">＋</span></div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px"><span onClick="{{s.decR}}" style="width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.6);font-size:13px;cursor:pointer">−</span><span style="font-size:14px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:24px;text-align:center">{{s.r}}</span><span onClick="{{s.incR}}" style="width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.6);font-size:13px;cursor:pointer">＋</span></div>
+                  <span onClick="{{s.onDel}}" style="width:24px;height:24px;justify-self:end;border-radius:50%;background:oklch(0.68 0.15 25 / .13);display:flex;align-items:center;justify-content:center;color:oklch(0.7 0.15 25);font-size:11px;cursor:pointer">✕</span>
+                </div>
+              </sc-for>
+              <div onClick="{{ex.addSet}}" style="margin-top:8px;text-align:center;padding:8px;border-radius:11px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.14);color:rgba(242,237,230,.55);font-size:12px;font-weight:600;cursor:pointer">+ Add set</div>
+            </div>
+          </sc-for>
+          <div onClick="{{openExCatalog}}" style="margin:12px 20px 0;text-align:center;padding:13px;border-radius:14px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);color:rgba(242,237,230,.6);font-size:13px;font-weight:600;cursor:pointer">+ Add exercise</div>
+        </sc-if>
+      </sc-if>
+    </div>
+
+    <!-- tab bar -->
+    <div style="flex:none;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 4px;background:#131110">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <div onClick="{{t.onTap}}" style="flex:1;text-align:center;cursor:pointer"><div style="font-size:17px;color:{{t.color}}">{{t.icon}}</div><div style="font-size:9px;color:{{t.color}};font-weight:600">{{t.label}}</div></div>
+      </sc-for>
+    </div>
+    <div style="flex:none;width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+    </sc-if>
+
+    <!-- login -->
+    <sc-if value="{{isLogin}}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;gap:14px">
+        <svg width="96" height="96" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="4"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="4" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#131110" stroke-width="2.6" fill="none" stroke-linecap="round"></path></g></svg>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">Coffee Bean</div>
+        <div style="font-size:12px;color:rgba(242,237,230,.45);margin-top:-8px;white-space:nowrap">Nutrition · Water · Body · Training</div>
+        <div style="width:100%;margin-top:14px;display:flex;flex-direction:column;gap:10px">
+          <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 15px;font-size:14px;color:rgba(242,237,230,.35)">Email</div>
+          <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 15px;font-size:14px;color:rgba(242,237,230,.35)">Password</div>
+          <div onClick="{{signIn}}" style="text-align:center;padding:14px;border-radius:13px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Sign in</div>
+        </div>
+        <div style="font-size:12px;color:rgba(242,237,230,.45);white-space:nowrap">No account? <span onClick="{{goSignup}}" style="color:oklch(0.75 0.15 60);font-weight:600;cursor:pointer">Create one</span></div>
+      </div>
+    </sc-if>
+
+    <!-- signup -->
+    <sc-if value="{{isSignup}}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;gap:14px">
+        <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">Create account</div>
+        <div style="font-size:12px;color:rgba(242,237,230,.45);margin-top:-8px;white-space:nowrap">No email verification · your data stays on device</div>
+        <div style="width:100%;margin-top:10px;display:flex;flex-direction:column;gap:10px">
+          <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 15px;font-size:14px;color:rgba(242,237,230,.35)">Name</div>
+          <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 15px;font-size:14px;color:rgba(242,237,230,.35)">Email</div>
+          <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 15px;font-size:14px;color:rgba(242,237,230,.35)">Password</div>
+          <div onClick="{{signIn}}" style="text-align:center;padding:14px;border-radius:13px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Create account</div>
+        </div>
+        <div style="font-size:12px;color:rgba(242,237,230,.45);white-space:nowrap">Already have an account? <span onClick="{{goLogin}}" style="color:oklch(0.75 0.15 60);font-weight:600;cursor:pointer">Sign in</span></div>
+      </div>
+    </sc-if>
+
+    <!-- settings -->
+    <sc-if value="{{settingsOpen}}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:#131110;z-index:40;display:flex;flex-direction:column;border-radius:41px;overflow:hidden">
+        <div style="display:flex;align-items:center;padding:24px 20px 8px;flex:none">
+          <span onClick="{{closeSettings}}" style="font-size:14px;color:oklch(0.75 0.15 60);cursor:pointer;white-space:nowrap;font-weight:600">‹ Back</span>
+          <span style="font-size:20px;font-weight:700;color:#f2ede6;margin-left:12px;white-space:nowrap">Settings</span>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:8px 20px 28px">
+          <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+            <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:18px;font-weight:800">{{profileInitials}}</div>
+            <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:#f2ede6;white-space:nowrap">{{profileName}}</div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{profileEmail}}</div></div>
+          </div>
+
+          <div style="margin-top:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">UNITS</div>
+          <div style="margin-top:6px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:12px 14px">
+            <div style="display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:3px">
+              <sc-for list="{{unitChips}}" as="u" hint-placeholder-count="2">
+                <div onClick="{{u.onTap}}" style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12px;font-weight:700;color:{{u.fg}};background:{{u.bg}};cursor:pointer;white-space:nowrap;transition:background .2s">{{u.short}}</div>
+              </sc-for>
+            </div>
+            <div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:8px;white-space:nowrap">{{unitNote}}</div>
+          </div>
+
+          <div style="margin-top:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">PROFILE</div>
+          <div style="margin-top:6px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:6px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Sex</span>
+              <div style="display:flex;gap:6px">
+                <sc-for list="{{sexChips}}" as="sx" hint-placeholder-count="2">
+                  <span onClick="{{sx.onTap}}" style="padding:6px 13px;border-radius:12px;background:{{sx.bg}};border:1px solid {{sx.bd}};color:{{sx.fg}};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer">{{sx.label}}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Age</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span onClick="{{ageDec}}" style="width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:15px;cursor:pointer">−</span>
+                <span style="font-size:14px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:52px;text-align:center;white-space:nowrap">{{ageLabel}}</span>
+                <span onClick="{{ageInc}}" style="width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:15px;cursor:pointer">＋</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+              <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Height</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span onClick="{{heightDec}}" style="width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:15px;cursor:pointer">−</span>
+                <span style="font-size:14px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:74px;text-align:center;white-space:nowrap">{{heightLabel}}</span>
+                <span onClick="{{heightInc}}" style="width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:15px;cursor:pointer">＋</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">DAILY TARGETS</div>
+          <div style="margin-top:6px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:#f2ede6;white-space:nowrap">Calories</div>
+            <div style="display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:3px;margin-top:8px">
+              <sc-for list="{{calModeChips}}" as="cm" hint-placeholder-count="2">
+                <div onClick="{{cm.onTap}}" style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12px;font-weight:700;color:{{cm.fg}};background:{{cm.bg}};cursor:pointer;white-space:nowrap;transition:background .2s">{{cm.label}}</div>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:12px">
+              <span onClick="{{calDec}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">−</span>
+              <div style="text-align:center;min-width:130px"><div style="font-size:22px;font-weight:800;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;white-space:nowrap">{{calValueLabel}}</div><div style="font-size:10px;color:rgba(242,237,230,.45);white-space:nowrap">{{calSubLabel}}</div></div>
+              <span onClick="{{calInc}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">＋</span>
+            </div>
+            <div style="text-align:center;font-size:11px;color:oklch(0.85 0.1 60);font-weight:600;margin-top:8px;font-variant-numeric:tabular-nums;white-space:nowrap">{{calResult}}</div>
+
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:14px 0"></div>
+            <div style="font-size:13px;font-weight:700;color:#f2ede6;white-space:nowrap">Macro split</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              <sc-for list="{{presetChips}}" as="pc" hint-placeholder-count="4">
+                <span onClick="{{pc.onTap}}" style="padding:6px 11px;border-radius:12px;background:{{pc.bg}};border:1px solid {{pc.bd}};color:{{pc.fg}};font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer">{{pc.label}}</span>
+              </sc-for>
+            </div>
+            <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:12px">
+              <div style="width:{{ratioBarC}};background:oklch(0.78 0.11 95)"></div>
+              <div style="width:{{ratioBarF}};background:oklch(0.75 0.11 320)"></div>
+              <div style="width:{{ratioBarP}};background:oklch(0.75 0.11 190)"></div>
+            </div>
+            <div style="margin-top:8px">
+              <sc-for list="{{macroRows}}" as="mr" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                  <span style="width:8px;height:8px;border-radius:50%;background:{{mr.color}};flex:none"></span>
+                  <span style="flex:1;font-size:12px;color:rgba(242,237,230,.75);white-space:nowrap">{{mr.name}}</span>
+                  <sc-if value="{{mr.custom}}" hint-placeholder-val="{{ false }}">
+                    <span onClick="{{mr.dec}}" style="width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:13px;cursor:pointer">−</span>
+                  </sc-if>
+                  <span style="font-size:12px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:34px;text-align:center;white-space:nowrap">{{mr.pct}}%</span>
+                  <sc-if value="{{mr.custom}}" hint-placeholder-val="{{ false }}">
+                    <span onClick="{{mr.inc}}" style="width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:13px;cursor:pointer">＋</span>
+                  </sc-if>
+                  <span style="font-size:11px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums;min-width:44px;text-align:right;white-space:nowrap">{{mr.grams}} g</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{macroCustomNote}}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:6px;white-space:nowrap">Adjust carbs &amp; fat — protein takes the remainder</div></sc-if>
+
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:14px 0 4px"></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:13px;color:rgba(242,237,230,.7)">Water</span><span style="font-size:13px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;white-space:nowrap">{{targetWater}}</span></div>
+          </div>
+
+          <div style="margin-top:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:rgba(242,237,230,.4)">APP</div>
+          <div style="margin-top:6px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:6px 14px">
+            <div onClick="{{toggleHealth}}" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer">
+              <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Apple Health sync</span>
+              <div style="width:44px;height:26px;border-radius:13px;background:{{healthBg}};position:relative;transition:background .2s"><div style="position:absolute;top:2px;left:{{healthKnob}};width:22px;height:22px;border-radius:50%;background:#f2ede6;transition:left .2s"></div></div>
+            </div>
+            <div onClick="{{toggleRemind}}" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer">
+              <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Morning weigh-in reminder</span>
+              <div style="width:44px;height:26px;border-radius:13px;background:{{remindBg}};position:relative;transition:background .2s"><div style="position:absolute;top:2px;left:{{remindKnob}};width:22px;height:22px;border-radius:50%;background:#f2ede6;transition:left .2s"></div></div>
+            </div>
+          </div>
+
+          <div onClick="{{logOut}}" style="margin-top:18px;text-align:center;padding:13px;border-radius:14px;background:oklch(0.68 0.15 25 / .12);border:1px solid oklch(0.68 0.15 25 / .3);color:oklch(0.7 0.15 25);font-size:14px;font-weight:700;cursor:pointer">Log out</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- calendar overlay -->
+    <sc-if value="{{calOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeCal}}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:20"></div>
+      <div style="position:absolute;top:96px;left:16px;right:16px;background:#221f1b;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:18px 20px;box-shadow:0 18px 50px rgba(0,0,0,.55);z-index:21">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-size:16px;font-weight:700;color:#f2ede6;white-space:nowrap">{{calMonthLabel}}</span>
+          <div style="display:flex;gap:20px;font-size:16px"><span onClick="{{calPrevMonth}}" style="color:rgba(242,237,230,.7);cursor:pointer;padding:0 4px">‹</span><span onClick="{{calNextMonth}}" style="color:{{calNextColor}};cursor:pointer;padding:0 4px">›</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:10px;color:rgba(242,237,230,.4);margin-bottom:8px"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;row-gap:8px">
+          <sc-for list="{{calCells}}" as="c" hint-placeholder-count="35">
+            <div onClick="{{c.onTap}}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:{{c.cursor}}">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:13px;font-variant-numeric:tabular-nums;background:{{c.bg}};color:{{c.fg}};font-weight:{{c.fw}}">{{c.label}}</span>
+              <span style="width:3px;height:3px;border-radius:50%;background:{{c.dot}}"></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)">
+          <span style="font-size:11px;color:rgba(242,237,230,.4);white-space:nowrap">● Logged days</span>
+          <span onClick="{{goTodayClose}}" style="font-size:12px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap;cursor:pointer">Back to today</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- add food sheet -->
+    <sc-if value="{{addOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeAdd}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;max-height:70%;display:flex;flex-direction:column">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0;flex:none"></div>
+        <div style="padding:12px 18px 0;display:flex;justify-content:space-between;align-items:center;flex:none"><span style="font-size:18px;font-weight:700;color:#f2ede6;white-space:nowrap">Add to {{addSlotName}}</span><span onClick="{{closeAdd}}" style="font-size:13px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap;cursor:pointer">{{addDoneLabel}}</span></div>
+        <div style="margin:12px 18px 0;display:flex;gap:8px;flex:none">
+          <div style="flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border-radius:11px;padding:9px 12px;color:rgba(242,237,230,.4);font-size:14px">⌕ Search foods</div>
+          <div style="width:42px;display:flex;align-items:center;justify-content:center;background:oklch(0.75 0.15 60);border-radius:11px;color:#26190a;font-size:17px">▣</div>
+        </div>
+        <div style="padding:6px 18px 18px;overflow-y:auto">
+          <div style="font-size:11px;color:rgba(242,237,230,.4);margin:8px 0 2px">Recent</div>
+          <sc-for list="{{recents}}" as="f" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">{{f.name}}</div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">{{f.sub}} · {{f.kcal}} kcal</div></div>
+              <span onClick="{{f.onAdd}}" style="width:28px;height:28px;flex:none;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:15px;cursor:pointer" style-active="transform:scale(.9)">＋</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- weight sheet -->
+    <sc-if value="{{weightOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeWeight}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Log Weight</span><div style="font-size:11px;color:rgba(242,237,230,.45);margin-top:2px">{{headerTitle}} · morning weigh-in</div></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:18px">
+          <span onClick="{{wDec}}" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:22px;cursor:pointer">−</span>
+          <div style="text-align:center"><div style="font-size:52px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1">{{wInput}}</div><div style="font-size:12px;color:rgba(242,237,230,.45)">{{wUnit}}</div></div>
+          <span onClick="{{wInc}}" style="width:48px;height:48px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:22px;cursor:pointer">＋</span>
+        </div>
+        <div onClick="{{saveWeight}}" style="margin:20px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Save</div>
+      </div>
+    </sc-if>
+
+    <!-- cardio sheet -->
+    <sc-if value="{{cardioOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeCardio}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Add Cardio</span></div>
+        <div style="padding:14px 20px 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <sc-for list="{{cardioTypes}}" as="ct" hint-placeholder-count="5">
+            <span onClick="{{ct.onTap}}" style="padding:7px 14px;border-radius:14px;background:{{ct.bg}};border:1px solid {{ct.bd}};color:{{ct.fg}};font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">{{ct.label}}</span>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:16px">
+          <span onClick="{{cardioDec}}" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:22px;cursor:pointer">−</span>
+          <div style="text-align:center"><div style="font-size:52px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1">{{cardioMin}}</div><div style="font-size:12px;color:rgba(242,237,230,.45)">min · ~{{cardioKcalPreview}} kcal</div></div>
+          <span onClick="{{cardioInc}}" style="width:48px;height:48px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:22px;cursor:pointer">＋</span>
+        </div>
+        <div onClick="{{saveCardio}}" style="margin:18px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Log {{cardioTypeSel}} · {{cardioMin}} min</div>
+      </div>
+    </sc-if>
+
+    <!-- exercise catalog sheet -->
+    <sc-if value="{{exCatalogOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeExCatalog}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;max-height:70%;display:flex;flex-direction:column">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0;flex:none"></div>
+        <div style="padding:12px 18px 0;display:flex;justify-content:space-between;align-items:center;flex:none"><span style="font-size:18px;font-weight:700;color:#f2ede6;white-space:nowrap">Add Exercise</span><span onClick="{{closeExCatalog}}" style="font-size:13px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap;cursor:pointer">Close</span></div>
+        <div style="padding:6px 18px 18px;overflow-y:auto">
+          <sc-for list="{{exCatalog}}" as="c" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">{{c.name}}</div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">{{c.sub}}</div></div>
+              <span onClick="{{c.onAdd}}" style="width:28px;height:28px;flex:none;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:15px;cursor:pointer">＋</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- edit water presets sheet -->
+    <sc-if value="{{editPresetsOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeEditPresets}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Edit Presets</span><div style="font-size:11px;color:rgba(242,237,230,.45);margin-top:2px">changes apply to the quick-add tiles</div></div>
+        <div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{presetRows}}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:18px;color:oklch(0.8 0.08 240);width:24px;text-align:center">{{p.icon}}</span>
+              <span style="flex:1;font-size:13px;color:rgba(242,237,230,.8);white-space:nowrap">{{p.name}}</span>
+              <span onClick="{{p.dec}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">−</span>
+              <span style="font-size:16px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;white-space:nowrap">{{p.mlLabel}}</span>
+              <span onClick="{{p.inc}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">＋</span>
+            </div>
+          </sc-for>
+        </div>
+        <div onClick="{{closeEditPresets}}" style="margin:18px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.11 240);color:#0a1826;font-size:15px;font-weight:700;cursor:pointer">Done</div>
+      </div>
+    </sc-if>
+
+    <!-- custom drink sheet -->
+    <sc-if value="{{customOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeCustom}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Add a Drink</span></div>
+        <div style="padding:14px 20px 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <sc-for list="{{customNames}}" as="n" hint-placeholder-count="5">
+            <span onClick="{{n.onTap}}" style="padding:7px 14px;border-radius:14px;background:{{n.bg}};border:1px solid {{n.bd}};color:{{n.fg}};font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">{{n.label}}</span>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:16px">
+          <span onClick="{{customDec}}" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:22px;cursor:pointer">−</span>
+          <div style="text-align:center"><div style="font-size:52px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1">{{customDisplay}}</div><div style="font-size:12px;color:rgba(242,237,230,.45)">{{volUnit}}</div></div>
+          <span onClick="{{customInc}}" style="width:48px;height:48px;border-radius:50%;background:oklch(0.75 0.11 240);display:flex;align-items:center;justify-content:center;color:#0a1826;font-size:22px;cursor:pointer">＋</span>
+        </div>
+        <div onClick="{{saveCustom}}" style="margin:18px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.11 240);color:#0a1826;font-size:15px;font-weight:700;cursor:pointer">Log {{customName}} · {{customDisplay}} {{volUnit}}</div>
+      </div>
+    </sc-if>
+
+    <!-- waist sheet -->
+    <sc-if value="{{waistOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeWaist}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Log Waist</span><div style="font-size:11px;color:rgba(242,237,230,.45);margin-top:2px">morning · relaxed · at navel</div></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:18px">
+          <span onClick="{{waistDec}}" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:22px;cursor:pointer">−</span>
+          <div style="text-align:center"><div style="font-size:52px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1">{{waistInput}}</div><div style="font-size:12px;color:rgba(242,237,230,.45)">{{waistUnit}}</div></div>
+          <span onClick="{{waistInc}}" style="width:48px;height:48px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:22px;cursor:pointer">＋</span>
+        </div>
+        <div onClick="{{saveWaist}}" style="margin:20px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Save</div>
+      </div>
+    </sc-if>
+
+    <!-- add DEXA sheet -->
+    <sc-if value="{{dexaOpen}}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{closeDexa}}" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#1a1815;border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;z-index:31;padding-bottom:24px">
+        <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+        <div style="padding:14px 20px 0;text-align:center"><span style="font-size:17px;font-weight:700;color:#f2ede6">Add DEXA Scan</span><div style="font-size:11px;color:rgba(242,237,230,.45);margin-top:2px">{{dexaDateLabel}}</div></div>
+        <div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{dexaFields}}" as="f" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="flex:1;font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">{{f.label}}</span>
+              <span onClick="{{f.dec}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">−</span>
+              <span style="font-size:18px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;min-width:64px;text-align:center;white-space:nowrap">{{f.val}}</span>
+              <span onClick="{{f.inc}}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:16px;cursor:pointer">＋</span>
+            </div>
+          </sc-for>
+          <div onClick="{{dexaToggleAuth}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;cursor:pointer">
+            <span style="font-size:13px;color:rgba(242,237,230,.7);white-space:nowrap">Use this RMR as authoritative</span>
+            <div style="width:44px;height:26px;border-radius:13px;background:{{dexaAuthBg}};position:relative;transition:background .2s"><div style="position:absolute;top:2px;left:{{dexaKnobLeft}};width:22px;height:22px;border-radius:50%;background:#f2ede6;transition:left .2s"></div></div>
+          </div>
+          <div style="padding:10px 13px;border-radius:11px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.14);font-size:12px;color:rgba(242,237,230,.45);text-align:center">＋ Attach report photo / PDF</div>
+        </div>
+        <div onClick="{{saveDexa}}" style="margin:16px 20px 0;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700;cursor:pointer">Save scan</div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;calorieTarget&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2600,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1800,&quot;max&quot;:4000,&quot;section&quot;:&quot;目标&quot;,&quot;description&quot;:&quot;每日卡路里目标&quot;},&quot;proteinTarget&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:170,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:80,&quot;max&quot;:300,&quot;section&quot;:&quot;目标&quot;},&quot;waterTarget&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2000,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1000,&quot;max&quot;:4000,&quot;step&quot;:250,&quot;unit&quot;:&quot;ml&quot;,&quot;section&quot;:&quot;目标&quot;}}">
+class Component extends DCLogic {
+  state = {
+    tab: 'food', sel: this.fmtDate(new Date()), weekOffset: 0,
+    calOpen: false, calMonth: this.fmtDate(new Date()).slice(0, 7),
+    addSlot: null, addedCount: 0, weightOpen: false, wInput: 72.6,
+    waistOpen: false, waistInput: 81.5, expandedSlot: null,
+    presets: [{ icon: '▯', name: 'Glass', ml: 250 }, { icon: '▮', name: 'Bottle', ml: 500 }, { icon: '◍', name: 'Coffee', ml: 300 }],
+    editPresetsOpen: false, customOpen: false, customMl: 300, customName: 'Water',
+    dexaOpen: false, dexaInput: { bf: 14.0, lean: 60.0, rmr: 1720, auth: true },
+    dexaScans: [
+      { dateLabel: 'May 2, 2026', bf: 14.2, lean: 59.8, rmr: 1720, auth: true },
+      { dateLabel: 'Jan 18, 2026', bf: 15.8, lean: 58.1, rmr: 1690, auth: false }
+    ],
+    days: {},
+    trainDays: {}, exCatalogOpen: false,
+    cardioOpen: false, cardioType: 'Run', cardioMin: 25,
+    screen: 'login', settingsOpen: false, units: 'metric',
+    profile: { name: 'Eric', email: 'eric@coffeebean.app', sex: 'Male', age: 32, heightCm: 180 },
+    healthOn: true, remindOn: false,
+    targets: { calMode: 'offset', calFixed: 2600, calOffset: 150, macroPreset: 'Default', customC: 50, customF: 30 }
+  };
+
+  exDB() {
+    return [
+      { name: 'Bench Press (Barbell)', w: 100, r: 8, grp: 'Chest' },
+      { name: 'Incline DB Press', w: 30, r: 10, grp: 'Chest' },
+      { name: 'Cable Fly', w: 20, r: 12, grp: 'Chest' },
+      { name: 'Weighted Dip', w: 20, r: 10, grp: 'Chest' },
+      { name: 'Deadlift', w: 160, r: 5, grp: 'Back' },
+      { name: 'Barbell Row', w: 80, r: 8, grp: 'Back' },
+      { name: 'Lat Pulldown', w: 70, r: 10, grp: 'Back' },
+      { name: 'Seated Cable Row', w: 65, r: 10, grp: 'Back' },
+      { name: 'Overhead Press (Barbell)', w: 55, r: 8, grp: 'Shoulder' },
+      { name: 'Seated DB Press', w: 26, r: 10, grp: 'Shoulder' },
+      { name: 'Lateral Raise', w: 10, r: 15, grp: 'Shoulder' },
+      { name: 'Rear Delt Fly', w: 12, r: 15, grp: 'Shoulder' },
+      { name: 'Squat (Barbell)', w: 130, r: 6, grp: 'Leg' },
+      { name: 'Leg Press', w: 220, r: 10, grp: 'Leg' },
+      { name: 'Romanian Deadlift', w: 100, r: 8, grp: 'Leg' },
+      { name: 'Calf Raise', w: 60, r: 12, grp: 'Leg' },
+      { name: 'Biceps Curl (Barbell)', w: 30, r: 10, grp: 'Arm' },
+      { name: 'Hammer Curl', w: 14, r: 12, grp: 'Arm' },
+      { name: 'Triceps Pushdown', w: 35, r: 12, grp: 'Arm' },
+      { name: 'Skullcrusher', w: 30, r: 10, grp: 'Arm' }
+    ];
+  }
+  routines() { return { Chest: [0, 1, 2, 3], Back: [4, 5, 6, 7], Shoulder: [8, 9, 10, 11], Leg: [12, 13, 14, 15], Arm: [16, 17, 18, 19] }; }
+  weekdayRoutine(key) { return ['Rest', 'Chest', 'Back', 'Leg', 'Shoulder', 'Arm', 'Rest'][this.parse(key).getDay()]; }
+  cardioRates() { return { 'Run': 11, 'Bike': 8, 'Row': 10, 'Incline Walk': 7, 'Swim': 9 }; }
+  seedCardio(key) {
+    const t = this.today();
+    if (key > t) return [];
+    if (key === t) return [{ type: 'Incline Walk', min: 20 }];
+    const h = this.hash(key + 'c');
+    return h % 3 === 0 ? [] : [{ type: ['Run', 'Bike', 'Row'][h % 3], min: 20 + (h % 4) * 5 }];
+  }
+  buildRoutine(name, key) {
+    if (name === 'Rest') return { routine: 'Rest', exercises: [] };
+    const db = this.exDB(), t = this.parse(this.today()), d = this.parse(key);
+    const diff = Math.round((d - t) / 86400000);
+    const factor = Math.max(0.86, 1 + Math.min(0, diff) * 0.0018);
+    return {
+      routine: name,
+      exercises: this.routines()[name].map(i => {
+        const w = Math.round(db[i].w * factor / 2.5) * 2.5;
+        return { name: db[i].name, sets: [0, 1, 2].map(() => ({ w, r: db[i].r })) };
+      })
+    };
+  }
+  getTrain(key) { return this.state.trainDays[key] || { ...this.buildRoutine(this.weekdayRoutine(key), key), cardio: this.seedCardio(key) }; }
+  setTrain(key, data) { this.setState(st => ({ trainDays: { ...st.trainDays, [key]: data } })); }
+  trainVol(exs) { return exs.reduce((a, ex) => a + ex.sets.reduce((b, s) => b + s.w * s.r, 0), 0); }
+
+  fmtDate(d) { const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  parse(k) { const a = k.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2]); }
+  today() { return this.fmtDate(new Date()); }
+  addDays(k, n) { const d = this.parse(k); d.setDate(d.getDate() + n); return this.fmtDate(d); }
+  weekStart(k) { const d = this.parse(k); d.setDate(d.getDate() - d.getDay()); return this.fmtDate(d); }
+  hash(s) { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+  fmtN(n) { return n.toLocaleString('en-US'); }
+  lb(kg) { return kg * 2.20462; }
+  oz(ml) { return ml * 0.033814; }
+
+  db() {
+    return [
+      { name: 'Chicken Breast (raw)', sub: '100 g', kcal: 165, p: 31, c: 0, f: 4 },
+      { name: 'Whey Protein', sub: '1 scoop (32 g)', kcal: 122, p: 24, c: 2, f: 2 },
+      { name: 'White Rice (cooked)', sub: '1 bowl (200 g)', kcal: 260, p: 5, c: 57, f: 1 },
+      { name: 'Whole Egg', sub: '1 egg (50 g)', kcal: 78, p: 6, c: 1, f: 5 },
+      { name: 'Banana', sub: '1 medium (118 g)', kcal: 105, p: 1, c: 27, f: 0 },
+      { name: 'PB Toast', sub: '1 slice', kcal: 290, p: 9, c: 28, f: 16 },
+      { name: 'Salmon (cooked)', sub: '150 g', kcal: 309, p: 33, c: 0, f: 19 },
+      { name: 'Oats', sub: '60 g', kcal: 228, p: 8, c: 39, f: 4 }
+    ];
+  }
+
+  seedDay(key) {
+    const t = this.today(), db = this.db();
+    if (key > t) return { meals: { b: [], l: [], d: [], sn: [], s: [] }, water: 0, waterLog: [] };
+    if (key === t) return {
+      meals: { b: [db[7], db[1], db[4]], l: [db[0], db[2]], d: [], sn: [db[4]], s: [db[1], db[5]] },
+      water: 1300, waterLog: [{ time: '14:20', name: 'Coffee', ml: 300 }, { time: '10:15', name: 'Water', ml: 500 }, { time: '07:45', name: 'Water', ml: 500 }]
+    };
+    const h = this.hash(key), pk = i => db[(h + i * 3) % db.length];
+    return {
+      meals: { b: [pk(0), pk(1)], l: [pk(2), pk(3)], d: [pk(4), pk(5)], sn: [pk(7)], s: [pk(6)] },
+      water: 1500 + (h % 5) * 250, waterLog: [{ time: '15:00', name: 'Water', ml: 500 }, { time: '09:30', name: 'Water', ml: 1000 + (h % 5) * 250 }]
+    };
+  }
+  getDay(key) {
+    const o = this.state.days[key] || {}, s = this.seedDay(key);
+    const wl = o.waterLog || s.waterLog;
+    return { meals: { sn: [], ...(o.meals || s.meals) }, water: wl.reduce((a, x) => a + (x.ml || 0), 0), waterLog: wl };
+  }
+  setDay(key, patch) { const cur = this.getDay(key); this.setState(st => ({ days: { ...st.days, [key]: { ...cur, ...patch } } })); }
+  hasLogs(key) { const d = this.getDay(key); return Object.values(d.meals).reduce((a, x) => a + x.length, 0) > 0 || d.water > 0; }
+
+  seedWaist(key) { const t = this.parse(this.today()), d = this.parse(key); const diff = Math.round((d - t) / 86400000); return 81.6 + diff * 0.012 + (((this.hash(key + 'w') % 100) / 100) - 0.5) * 0.5; }
+  getWaist(key) { const o = this.state.days[key]; return o && o.waist != null ? o.waist : this.seedWaist(key); }
+
+  seedWeight(key) { const t = this.parse(this.today()), d = this.parse(key); const diff = Math.round((d - t) / 86400000); return 72.55 + diff * 0.045 + (((this.hash(key) % 100) / 100) - 0.5) * 0.45; }
+  getWeight(key) { const o = this.state.days[key]; return o && o.weight != null ? o.weight : this.seedWeight(key); }
+
+  selectDate(key) {
+    const off = Math.round((this.parse(this.weekStart(key)) - this.parse(this.weekStart(this.today()))) / (7 * 86400000));
+    this.setState({ sel: key, weekOffset: off, calOpen: false, calMonth: key.slice(0, 7) });
+  }
+
+  renderVals() {
+    const st = this.state, t = this.today(), sel = st.sel;
+    const isToday = sel === t;
+    const sd = this.parse(sel);
+    const TDEE = 2460;
+    const tg = st.targets;
+    const calTarget = tg.calMode === 'fixed' ? tg.calFixed : TDEE + tg.calOffset;
+    const MACRO_PRESETS = { 'Default': [50, 30, 20], 'High Protein': [40, 20, 40], 'Keto': [10, 65, 25] };
+    const ratio = tg.macroPreset === 'Custom' ? [tg.customC, tg.customF, 100 - tg.customC - tg.customF] : MACRO_PRESETS[tg.macroPreset];
+    const carbTarget = Math.round(calTarget * ratio[0] / 100 / 4);
+    const fatTarget = Math.round(calTarget * ratio[1] / 100 / 9);
+    const protTarget = Math.round(calTarget * ratio[2] / 100 / 4);
+    const waterTarget = this.props.waterTarget ?? 2000;
+    const pTarget = this.props.proteinTarget ?? 170;
+    const imp = st.units === 'imperial';
+    const wU = imp ? 'lb' : 'kg';
+    const fmtW = kg => (imp ? this.lb(kg) : kg).toFixed(1);
+    const fmtWaist = cm => (imp ? cm / 2.54 : cm).toFixed(1);
+    const waistU = imp ? 'in' : 'cm';
+    const fmtVol = ml => imp ? Math.round(this.oz(ml)) + ' fl oz' : (ml >= 1000 ? (ml / 1000).toFixed(2).replace(/0$/, '') + ' L' : ml + ' ml');
+    const dispKg = v => this.fmtN(Math.round(imp ? this.lb(v) : v));
+
+    // day data
+    const day = this.getDay(sel);
+    const slots = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner'], ['sn', 'Snacks'], ['s', 'Extra']];
+    let consumed = 0, P = 0, C = 0, F = 0;
+    for (const [k] of slots) for (const e of day.meals[k]) { consumed += e.kcal; P += e.p; C += e.c; F += e.f; }
+    const left = calTarget - consumed;
+    const surplus = consumed - 2460;
+
+    // week strip
+    const ws = this.addDays(this.weekStart(t), st.weekOffset * 7);
+    const letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const weekDays = letters.map((L, i) => {
+      const key = this.addDays(ws, i);
+      const future = key > t, isT = key === t, isSel = key === sel, logged = !future && this.hasLogs(key);
+      return {
+        letter: L, isToday: isT,
+        lc: isT || isSel ? '#f2ede6' : 'rgba(242,237,230,.45)',
+        bg: logged ? 'oklch(0.75 0.15 60)' : 'transparent',
+        border: logged ? 'none' : '1.5px solid rgba(242,237,230,.22)',
+        ring: isSel ? '0 0 0 2.5px #131110, 0 0 0 4.5px oklch(0.75 0.15 60 / .6)' : 'none',
+        mark: logged ? '✓' : '', opacity: '1',
+        onTap: () => this.selectDate(key)
+      };
+    });
+    const weekEnd = this.addDays(ws, 6);
+    const weekLabel = (ws.slice(5, 7) * 1) + '/' + (ws.slice(8) * 1) + ' – ' + (weekEnd.slice(5, 7) * 1) + '/' + (weekEnd.slice(8) * 1);
+
+    // calendar
+    const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const [cy, cm] = st.calMonth.split('-').map(Number);
+    const first = new Date(cy, cm - 1, 1), dim = new Date(cy, cm, 0).getDate();
+    const calCells = [];
+    for (let i = 0; i < first.getDay(); i++) calCells.push({ label: '', bg: 'transparent', fg: 'transparent', dot: 'transparent', fw: '400', cursor: 'default', onTap: () => {} });
+    for (let d = 1; d <= dim; d++) {
+      const key = st.calMonth + '-' + String(d).padStart(2, '0');
+      const future = key > t, isSel = key === sel;
+      calCells.push({
+        label: String(d),
+        bg: isSel ? 'oklch(0.75 0.15 60)' : 'transparent',
+        fg: isSel ? '#26190a' : future ? 'rgba(242,237,230,.5)' : 'rgba(242,237,230,.8)',
+        fw: isSel ? '700' : '400',
+        dot: !future && this.hasLogs(key) && !isSel ? 'oklch(0.75 0.15 60 / .7)' : 'transparent',
+        cursor: 'pointer',
+        onTap: () => this.selectDate(key)
+      });
+    }
+    const curMonth = t.slice(0, 7);
+    const calNav = n => {
+      const d = new Date(cy, cm - 1 + n, 1); const mk = this.fmtDate(d).slice(0, 7);
+      this.setState({ calMonth: mk });
+    };
+
+    // meals
+    const delEntry = (k, i) => {
+      const d2 = this.getDay(sel);
+      const meals2 = {}; for (const key2 of Object.keys(d2.meals)) meals2[key2] = [...d2.meals[key2]];
+      meals2[k].splice(i, 1);
+      this.setDay(sel, { meals: meals2 });
+    };
+    const meals = slots.map(([k, name]) => {
+      const es = day.meals[k];
+      const kcal = es.reduce((a, e) => a + e.kcal, 0);
+      const expanded = st.expandedSlot === k;
+      return {
+        name, kcalLabel: es.length ? this.fmtN(kcal) + ' kcal' : '',
+        titleColor: es.length ? '#f2ede6' : 'rgba(242,237,230,.55)',
+        sub: es.length ? es.map(e => e.name).join(' · ') : 'Nothing logged yet',
+        expanded, empty: expanded && es.length === 0,
+        chev: expanded ? '▾' : '▸',
+        entries: es.map((e, i) => ({ name: e.name + '  ·  ' + e.sub, kcal: e.kcal, onDel: () => delEntry(k, i) })),
+        onToggle: () => this.setState(s2 => ({ expandedSlot: s2.expandedSlot === k ? null : k })),
+        onAdd: ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.setState({ addSlot: k, addedCount: 0 }); }
+      };
+    });
+
+    // add sheet
+    const recents = this.db().map(f => ({
+      ...f,
+      onAdd: () => {
+        const d2 = this.getDay(sel);
+        const meals2 = { b: [...d2.meals.b], l: [...d2.meals.l], d: [...d2.meals.d], sn: [...(d2.meals.sn || [])], s: [...d2.meals.s] };
+        meals2[st.addSlot].push(f);
+        this.setDay(sel, { meals: meals2 });
+        this.setState(s2 => ({ addedCount: s2.addedCount + 1 }));
+      }
+    }));
+    const slotName = { b: 'Breakfast', l: 'Lunch', d: 'Dinner', sn: 'Snacks', s: 'Extra' }[st.addSlot] || '';
+
+    // water
+    const wPct = Math.min(1, day.water / waterTarget);
+    const CIRC = 477.5;
+    const nowTime = () => { const n = new Date(); return String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0'); };
+    const logDrink = (name, ml) => {
+      const d2 = this.getDay(sel);
+      this.setDay(sel, { waterLog: [{ time: isToday ? nowTime() : 'added', name, ml }, ...d2.waterLog] });
+    };
+    const presets = st.presets.map(p => ({
+      icon: p.icon, name: p.name, label: fmtVol(p.ml),
+      onTap: () => logDrink(p.name, p.ml)
+    }));
+    const presetRows = st.presets.map((p, i) => ({
+      icon: p.icon, name: p.name, mlLabel: fmtVol(p.ml),
+      inc: () => this.setState(s2 => ({ presets: s2.presets.map((x, j) => j === i ? { ...x, ml: x.ml + 50 } : x) })),
+      dec: () => this.setState(s2 => ({ presets: s2.presets.map((x, j) => j === i ? { ...x, ml: Math.max(50, x.ml - 50) } : x) }))
+    }));
+    const customNames = ['Water', 'Coffee', 'Tea', 'Protein Shake', 'Juice'].map(n => ({
+      label: n,
+      bg: st.customName === n ? 'oklch(0.75 0.11 240 / .2)' : 'rgba(255,255,255,.05)',
+      bd: st.customName === n ? 'oklch(0.75 0.11 240 / .5)' : 'rgba(255,255,255,.1)',
+      fg: st.customName === n ? 'oklch(0.85 0.07 240)' : 'rgba(242,237,230,.7)',
+      onTap: () => this.setState({ customName: n })
+    }));
+
+    // body charts — range switcher
+    const rangeDefs = [{ label: '2W', days: 14 }, { label: '1M', days: 30 }, { label: '3M', days: 90 }, { label: '6M', days: 180 }, { label: '1Y', days: 365 }];
+    const rangeDays = st.bodyRange || 14;
+    const bodyRanges = rangeDefs.map(r => ({
+      label: r.label,
+      fg: r.days === rangeDays ? '#26190a' : 'rgba(242,237,230,.55)',
+      bg: r.days === rangeDays ? 'oklch(0.75 0.15 60)' : 'transparent',
+      onTap: () => this.setState({ bodyRange: r.days })
+    }));
+    const rangeCaption = { 14: 'Last 2 weeks', 30: 'Last month', 90: 'Last 3 months', 180: 'Last 6 months', 365: 'Last year' }[rangeDays];
+    const stepN = Math.max(1, Math.round(rangeDays / 48));
+    const keys = []; for (let i = rangeDays - 1; i >= 0; i -= stepN) keys.push(this.addDays(t, -i));
+    if (keys[keys.length - 1] !== t) keys.push(t);
+    const N = keys.length, showDots = rangeDays <= 90;
+    const raws = keys.map(k => this.getWeight(k));
+    const trend = []; let acc = raws[0];
+    const alpha = Math.min(0.6, 0.28 * stepN);
+    for (const w of raws) { acc = acc + alpha * (w - acc); trend.push(acc); }
+    const min = Math.min(...raws) - 0.15, max = Math.max(...raws) + 0.15;
+    const X = i => 14 + i * (292 / (N - 1)), Y = w => 128 - ((w - min) / (max - min)) * 112;
+    const wDots = showDots ? raws.map((w, i) => ({ x: X(i).toFixed(1), y: Y(w).toFixed(1) })) : [];
+    const trendPts = trend.map((w, i) => X(i).toFixed(1) + ',' + Y(w).toFixed(1)).join(' ');
+    // weekly rate always from daily last 14 days
+    const rk = []; for (let i = 13; i >= 0; i--) rk.push(this.addDays(t, -i));
+    const rraw = rk.map(k => this.getWeight(k));
+    const rtr = []; let racc = rraw[0];
+    for (const w of rraw) { racc = racc + 0.28 * (w - racc); rtr.push(racc); }
+    const weekRateKg = rtr[13] - rtr[6];
+    const weekRate = (imp ? this.lb(weekRateKg) : weekRateKg).toFixed(2);
+
+    // waist chart (same range)
+    const wraws = keys.map(k => this.getWaist(k));
+    const wtrend = []; let wacc = wraws[0];
+    for (const w of wraws) { wacc = wacc + alpha * (w - wacc); wtrend.push(wacc); }
+    const wmin = Math.min(...wraws) - 0.2, wmax = Math.max(...wraws) + 0.2;
+    const WX = i => 14 + i * (292 / (N - 1)), WY = w => 64 - ((w - wmin) / (wmax - wmin)) * 56;
+    const waistDots = showDots ? wraws.map((w, i) => ({ x: WX(i).toFixed(1), y: WY(w).toFixed(1) })) : [];
+    const waistPts = wtrend.map((w, i) => WX(i).toFixed(1) + ',' + WY(w).toFixed(1)).join(' ');
+    const wrraw = rk.map(k => this.getWaist(k));
+    const wrtr = []; let wracc = wrraw[0];
+    for (const w of wrraw) { wracc = wracc + 0.28 * (w - wracc); wrtr.push(wracc); }
+    const wDelta = wrtr[13] - wrtr[6];
+
+    // dexa
+    const di = st.dexaInput;
+    const dexaMut = (k, n) => this.setState(s2 => ({ dexaInput: { ...s2.dexaInput, [k]: Math.round((s2.dexaInput[k] + n) * 10) / 10 } }));
+    const dexaFields = [
+      { label: 'Body fat %', val: di.bf.toFixed(1) + ' %', inc: () => dexaMut('bf', 0.1), dec: () => dexaMut('bf', -0.1) },
+      { label: 'Lean mass', val: di.lean.toFixed(1) + ' kg', inc: () => dexaMut('lean', 0.1), dec: () => dexaMut('lean', -0.1) },
+      { label: 'RMR', val: Math.round(di.rmr) + ' kcal', inc: () => dexaMut('rmr', 10), dec: () => dexaMut('rmr', -10) }
+    ];
+    const tD = this.parse(t);
+    const dexaDateLabel = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][tD.getMonth()] + ' ' + tD.getDate() + ', ' + tD.getFullYear();
+
+    // train — day plan + volume tracking
+    const plan = this.getTrain(sel);
+    const isRest = plan.routine === 'Rest';
+    const cloneTrain = () => ({ routine: plan.routine, exercises: plan.exercises.map(e => ({ name: e.name, sets: e.sets.map(x => ({ ...x })) })), cardio: (plan.cardio || []).map(x => ({ ...x })) });
+    const mutTrain = fn => { const c = cloneTrain(); fn(c); this.setTrain(sel, c); };
+    const volume = this.trainVol(plan.exercises);
+    // previous session of the same routine (walk back up to 21 days)
+    let prevPlanKey = null;
+    for (let i = 1; i <= 21; i++) {
+      const k2 = this.addDays(sel, -i);
+      const p2 = this.getTrain(k2);
+      if (p2.routine === plan.routine && !isRest) { prevPlanKey = k2; break; }
+    }
+    const prevPlan = prevPlanKey ? this.getTrain(prevPlanKey) : null;
+    const prevVol = prevPlan ? this.trainVol(prevPlan.exercises) : 0;
+    const dVol = volume - prevVol;
+    const dPct = prevVol > 0 ? (dVol / prevVol * 100) : 0;
+    // volume history bars: this + previous 7 same-routine sessions
+    const histKeys = [];
+    if (!isRest) {
+      let k2 = sel, found = 0;
+      histKeys.unshift(sel);
+      for (let i = 1; i <= 60 && found < 7; i++) {
+        k2 = this.addDays(sel, -i);
+        if (this.getTrain(k2).routine === plan.routine) { histKeys.unshift(k2); found++; }
+      }
+    }
+    const histVols = histKeys.map(k2 => this.trainVol(this.getTrain(k2).exercises));
+    const maxV = Math.max(...histVols, 1);
+    const volBars = histKeys.map((k2, i) => {
+      const d2 = this.parse(k2);
+      return {
+        h: Math.max(6, Math.round(histVols[i] / maxV * 56)) + 'px',
+        bg: k2 === sel ? 'oklch(0.75 0.15 60)' : 'rgba(255,255,255,.14)',
+        label: (d2.getMonth() + 1) + '/' + d2.getDate()
+      };
+    });
+    const routineChips = ['Chest', 'Back', 'Shoulder', 'Leg', 'Arm', 'Rest'].map(n => ({
+      label: n,
+      bg: plan.routine === n ? 'oklch(0.75 0.15 60 / .18)' : 'rgba(255,255,255,.05)',
+      bd: plan.routine === n ? 'oklch(0.75 0.15 60 / .45)' : 'rgba(255,255,255,.1)',
+      fg: plan.routine === n ? 'oklch(0.85 0.1 60)' : 'rgba(242,237,230,.55)',
+      onTap: () => this.setTrain(sel, { ...this.buildRoutine(n, sel), cardio: plan.cardio || [] })
+    }));
+    // cardio
+    const rates = this.cardioRates();
+    const cardio = plan.cardio || [];
+    const cardioEntries = cardio.map((c, ci) => ({
+      type: c.type, min: c.min, kcal: Math.round(c.min * (rates[c.type] || 9)),
+      onDel: () => mutTrain(cl => cl.cardio.splice(ci, 1))
+    }));
+    const cardioTotalMin = cardio.reduce((a, c) => a + c.min, 0);
+    const cardioTypes = Object.keys(rates).map(n => ({
+      label: n,
+      bg: st.cardioType === n ? 'oklch(0.75 0.15 60 / .18)' : 'rgba(255,255,255,.05)',
+      bd: st.cardioType === n ? 'oklch(0.75 0.15 60 / .45)' : 'rgba(255,255,255,.1)',
+      fg: st.cardioType === n ? 'oklch(0.85 0.1 60)' : 'rgba(242,237,230,.7)',
+      onTap: () => this.setState({ cardioType: n })
+    }));
+    const cardKeys = []; for (let i = 7; i >= 0; i--) cardKeys.push(this.addDays(sel, -i));
+    const cardMins = cardKeys.map(k2 => (this.getTrain(k2).cardio || []).reduce((a, c) => a + c.min, 0));
+    const maxCM = Math.max(...cardMins, 1);
+    const cardioBars = cardKeys.map((k2, i) => {
+      const d2 = this.parse(k2);
+      return { h: Math.max(4, Math.round(cardMins[i] / maxCM * 44)) + 'px', bg: k2 === sel ? 'oklch(0.75 0.11 190)' : 'rgba(255,255,255,.14)', label: (d2.getMonth() + 1) + '/' + d2.getDate() };
+    });
+    let prevCM = 0;
+    for (let i = 1; i <= 21; i++) { const m2 = (this.getTrain(this.addDays(sel, -i)).cardio || []).reduce((a, c) => a + c.min, 0); if (m2 > 0) { prevCM = m2; break; } }
+    const cardioDeltaMin = cardioTotalMin - prevCM;
+    const cardioKcalTotal = cardio.reduce((a, c) => a + Math.round(c.min * (rates[c.type] || 9)), 0);
+    const exercises = plan.exercises.map((ex, ei) => {
+      const exVol = ex.sets.reduce((a, s) => a + s.w * s.r, 0);
+      const lastEx = prevPlan ? prevPlan.exercises.find(e => e.name === ex.name) : null;
+      const lastVol = lastEx ? lastEx.sets.reduce((a, s) => a + s.w * s.r, 0) : 0;
+      const exD = exVol - lastVol;
+      return {
+        name: ex.name,
+        lastLabel: lastEx ? (imp ? Math.round(this.lb(lastEx.sets[0].w)) : lastEx.sets[0].w) + ' ' + wU + ' × ' + lastEx.sets[0].r + ' × ' + lastEx.sets.length : '—',
+        vol: dispKg(exVol),
+        delta: lastEx ? (exD >= 0 ? '+' : '-') + dispKg(Math.abs(exD)) : 'new',
+        deltaColor: !lastEx ? 'rgba(242,237,230,.45)' : exD >= 0 ? 'oklch(0.72 0.13 150)' : 'oklch(0.7 0.15 25)',
+        onRemove: () => mutTrain(c => c.exercises.splice(ei, 1)),
+        addSet: () => mutTrain(c => { const ss = c.exercises[ei].sets; const last = ss[ss.length - 1]; ss.push({ w: last ? last.w : 20, r: last ? last.r : 8 }); }),
+        sets: ex.sets.map((s, si) => ({
+          idx: si + 1, w: imp ? Math.round(this.lb(s.w)) : s.w, r: s.r,
+          incW: () => mutTrain(c => c.exercises[ei].sets[si].w += (imp ? 2.268 : 2.5)),
+          decW: () => mutTrain(c => c.exercises[ei].sets[si].w = Math.max(0, c.exercises[ei].sets[si].w - (imp ? 2.268 : 2.5))),
+          incR: () => mutTrain(c => c.exercises[ei].sets[si].r += 1),
+          decR: () => mutTrain(c => c.exercises[ei].sets[si].r = Math.max(0, c.exercises[ei].sets[si].r - 1)),
+          onDel: () => mutTrain(c => c.exercises[ei].sets.splice(si, 1))
+        }))
+      };
+    });
+    const exCatalog = this.exDB().map(c => ({
+      name: c.name, sub: c.grp + ' · default ' + (imp ? Math.round(this.lb(c.w)) : c.w) + ' ' + wU + ' × ' + c.r,
+      onAdd: () => { mutTrain(cl => cl.exercises.push({ name: c.name, sets: [0, 1, 2].map(() => ({ w: c.w, r: c.r })) })); this.setState({ exCatalogOpen: false }); }
+    }));
+
+    // tabs
+    const tabDefs = [['food', '◒', 'Food'], ['water', '◔', 'Water'], ['body', '↗', 'Body'], ['train', '◫', 'Train']];
+    const tabs = tabDefs.map(([id, icon, label]) => ({
+      icon, label,
+      color: st.tab === id ? (id === 'water' ? 'oklch(0.75 0.11 240)' : 'oklch(0.75 0.15 60)') : 'rgba(242,237,230,.35)',
+      onTap: () => this.setState({ tab: id })
+    }));
+
+    const showDateHeader = st.tab === 'food' || st.tab === 'water' || st.tab === 'train';
+    const headerTitle = st.tab === 'body' ? 'Body' : (isToday ? 'Today' : MN[sd.getMonth()] + ' ' + sd.getDate());
+
+    return {
+      isFood: st.tab === 'food', isWater: st.tab === 'water', isBody: st.tab === 'body', isTrain: st.tab === 'train',
+      tabs, headerTitle, showDateHeader,
+      calArrow: st.calOpen ? '▲' : '▼', calArrowColor: st.calOpen ? 'oklch(0.75 0.15 60)' : 'rgba(242,237,230,.5)',
+      showBackToday: showDateHeader && !isToday,
+      goToday: () => this.selectDate(t),
+      goTodayClose: () => this.selectDate(t),
+      toggleCal: () => { if (showDateHeader) this.setState({ calOpen: !st.calOpen, calMonth: sel.slice(0, 7) }); },
+      closeCal: () => this.setState({ calOpen: false }),
+      calOpen: st.calOpen, calMonthLabel: MN[cm - 1] + ' ' + cy, calCells,
+      calPrevMonth: () => calNav(-1), calNextMonth: () => calNav(1),
+      calNextColor: 'oklch(0.75 0.15 60)',
+      weekDays, weekLabel,
+      prevWeek: () => this.setState(s2 => ({ weekOffset: s2.weekOffset - 1 })),
+      nextWeek: () => { if (st.weekOffset < 4) this.setState(s2 => ({ weekOffset: s2.weekOffset + 1 })); },
+      nextWeekOpacity: st.weekOffset < 4 ? '1' : '.3',
+      weekTouchStart: e => { this._tx = e.touches[0].clientX; },
+      weekTouchEnd: e => {
+        const dx = e.changedTouches[0].clientX - (this._tx ?? 0);
+        if (dx > 45) this.setState(s2 => ({ weekOffset: s2.weekOffset - 1 }));
+        else if (dx < -45 && st.weekOffset < 4) this.setState(s2 => ({ weekOffset: s2.weekOffset + 1 }));
+      },
+      weekMouseDown: e => { this._tx = e.clientX; },
+      weekMouseUp: e => {
+        const dx = e.clientX - (this._tx ?? 0);
+        if (dx > 45) this.setState(s2 => ({ weekOffset: s2.weekOffset - 1 }));
+        else if (dx < -45 && st.weekOffset < 4) this.setState(s2 => ({ weekOffset: s2.weekOffset + 1 }));
+      },
+      calConsumed: this.fmtN(consumed), calTargetFmt: this.fmtN(calTarget),
+      calLeft: this.fmtN(Math.abs(left)), calLeftLabel: left >= 0 ? 'left' : 'over',
+      calPct: Math.min(100, consumed / calTarget * 100).toFixed(1) + '%',
+      surplus: (surplus >= 0 ? '+' : '') + surplus,
+      macros: [
+        { name: 'Carbs', val: C, target: carbTarget, pct: Math.min(100, C / carbTarget * 100).toFixed(1) + '%', color: 'oklch(0.78 0.11 95)' },
+        { name: 'Fat', val: F, target: fatTarget, pct: Math.min(100, F / fatTarget * 100).toFixed(1) + '%', color: 'oklch(0.75 0.11 320)' },
+        { name: 'Protein', val: P, target: protTarget, pct: Math.min(100, P / protTarget * 100).toFixed(1) + '%', color: 'oklch(0.75 0.11 190)' }
+      ],
+      meals,
+      addOpen: !!st.addSlot, addSlotName: slotName,
+      addDoneLabel: st.addedCount > 0 ? 'Done (' + st.addedCount + ' added)' : 'Close',
+      closeAdd: () => this.setState({ addSlot: null }),
+      recents,
+      waterAmt: imp ? Math.round(this.oz(day.water)) + ' fl oz' : this.fmtN(day.water) + ' ml',
+      waterTargetLabel: imp ? Math.round(this.oz(waterTarget)) + ' fl oz' : (waterTarget / 1000).toFixed(1) + ' L',
+      waterPctLabel: Math.round(wPct * 100) + '%', waterDash: (wPct * CIRC).toFixed(0) + ' ' + CIRC,
+      waterDone: day.water >= waterTarget, waterPresets: presets,
+      waterLog: day.waterLog.map((w, i) => ({
+        time: w.time, label: (w.name || 'Water') + ' · ' + fmtVol(w.ml),
+        onDel: () => { const d2 = this.getDay(sel); this.setDay(sel, { waterLog: d2.waterLog.filter((x, j) => j !== i) }); }
+      })),
+      waterLogEmpty: day.waterLog.length === 0,
+      openEditPresets: () => this.setState({ editPresetsOpen: true }),
+      closeEditPresets: () => this.setState({ editPresetsOpen: false }),
+      editPresetsOpen: st.editPresetsOpen, presetRows,
+      openCustom: () => this.setState({ customOpen: true }),
+      closeCustom: () => this.setState({ customOpen: false }),
+      customOpen: st.customOpen, customNames, customName: st.customName,
+      customDisplay: imp ? Math.round(this.oz(st.customMl)) : st.customMl, volUnit: imp ? 'fl oz' : 'ml',
+      customInc: () => this.setState(s2 => ({ customMl: s2.customMl + 50 })),
+      customDec: () => this.setState(s2 => ({ customMl: Math.max(50, s2.customMl - 50) })),
+      saveCustom: () => { logDrink(st.customName, st.customMl); this.setState({ customOpen: false }); },
+      trendW: fmtW(trend[trend.length - 1]), weekRate: (weekRate >= 0 ? '+' : '') + weekRate,
+      wUnit: wU, waistUnit: waistU, rateRange: imp ? '0.4–0.8' : '0.18–0.36', setUnitHdr: imp ? 'LB' : 'KG',
+      wDots, trendPts, bodyRanges, rangeCaption,
+      openWeight: () => this.setState({ weightOpen: true, wInput: Math.round(this.getWeight(t) * 10) / 10 }),
+      closeWeight: () => this.setState({ weightOpen: false }),
+      weightOpen: st.weightOpen, wInput: fmtW(st.wInput),
+      wInc: () => this.setState(s2 => ({ wInput: Math.round((s2.wInput + (imp ? 0.0907 : 0.1)) * 1000) / 1000 })),
+      wDec: () => this.setState(s2 => ({ wInput: Math.round((s2.wInput - (imp ? 0.0907 : 0.1)) * 1000) / 1000 })),
+      saveWeight: () => { this.setDay(t, { weight: st.wInput }); this.setState({ weightOpen: false }); },
+      waistNow: fmtWaist(wtrend[wtrend.length - 1]), waistDelta: (wDelta >= 0 ? '+' : '') + (imp ? wDelta / 2.54 : wDelta).toFixed(1),
+      waistDots, waistPts,
+      waistOpen: st.waistOpen, waistInput: fmtWaist(st.waistInput),
+      openWaist: () => this.setState({ waistOpen: true, waistInput: Math.round(this.getWaist(t) * 10) / 10 }),
+      closeWaist: () => this.setState({ waistOpen: false }),
+      waistInc: () => this.setState(s2 => ({ waistInput: Math.round((s2.waistInput + (imp ? 0.635 : 0.5)) * 1000) / 1000 })),
+      waistDec: () => this.setState(s2 => ({ waistInput: Math.round((s2.waistInput - (imp ? 0.635 : 0.5)) * 1000) / 1000 })),
+      saveWaist: () => { this.setDay(t, { waist: st.waistInput }); this.setState({ waistOpen: false }); },
+      dexaOpen: st.dexaOpen, dexaFields, dexaDateLabel,
+      dexaScans: st.dexaScans.map(d => ({ dateLabel: d.dateLabel, auth: d.auth, sub: 'Body fat ' + d.bf.toFixed(1) + '% · Lean ' + d.lean.toFixed(1) + ' kg · RMR ' + Math.round(d.rmr) })),
+      openDexa: () => this.setState({ dexaOpen: true }),
+      closeDexa: () => this.setState({ dexaOpen: false }),
+      dexaToggleAuth: () => this.setState(s2 => ({ dexaInput: { ...s2.dexaInput, auth: !s2.dexaInput.auth } })),
+      dexaAuthBg: di.auth ? 'oklch(0.75 0.15 60)' : 'rgba(255,255,255,.12)',
+      dexaKnobLeft: di.auth ? '20px' : '2px',
+      saveDexa: () => this.setState(s2 => ({
+        dexaOpen: false,
+        dexaScans: [
+          { dateLabel: dexaDateLabel, bf: s2.dexaInput.bf, lean: s2.dexaInput.lean, rmr: s2.dexaInput.rmr, auth: s2.dexaInput.auth },
+          ...s2.dexaScans.map(d => s2.dexaInput.auth ? { ...d, auth: false } : d)
+        ]
+      })),
+      volume: dispKg(volume), exercises, exCatalog,
+      isRest, notRest: !isRest,
+      routineName: plan.routine === 'Rest' ? 'Rest day' : plan.routine + ' Day',
+      planLabel: sel > t ? 'Planned session' : isToday ? "Today's session" : 'Logged session',
+      routineChips,
+      volDelta: (dVol >= 0 ? '+' : '-') + dispKg(Math.abs(dVol)),
+      volDeltaPct: (dPct >= 0 ? '+' : '') + dPct.toFixed(1) + '%',
+      volDeltaColor: dVol >= 0 ? 'oklch(0.72 0.13 150)' : 'oklch(0.7 0.15 25)',
+      volBars,
+      openExCatalog: () => this.setState({ exCatalogOpen: true }),
+      closeExCatalog: () => this.setState({ exCatalogOpen: false }),
+      exCatalogOpen: st.exCatalogOpen,
+      cardioEntries, cardioEmpty: cardio.length === 0,
+      cardioTotalMin, cardioBars, cardioKcalTotal,
+      cardioDelta: (cardioDeltaMin >= 0 ? '+' : '') + cardioDeltaMin,
+      cardioDeltaColor: cardioDeltaMin >= 0 ? 'oklch(0.72 0.13 150)' : 'oklch(0.7 0.15 25)',
+      cardioOpen: st.cardioOpen, cardioTypes, cardioTypeSel: st.cardioType, cardioMin: st.cardioMin,
+      cardioKcalPreview: Math.round(st.cardioMin * (this.cardioRates()[st.cardioType] || 9)),
+      openCardio: () => this.setState({ cardioOpen: true }),
+      closeCardio: () => this.setState({ cardioOpen: false }),
+      cardioInc: () => this.setState(s2 => ({ cardioMin: s2.cardioMin + 5 })),
+      cardioDec: () => this.setState(s2 => ({ cardioMin: Math.max(5, s2.cardioMin - 5) })),
+      saveCardio: () => { mutTrain(cl => cl.cardio.push({ type: st.cardioType, min: st.cardioMin })); this.setState({ cardioOpen: false }); },
+      inApp: st.screen === 'app', isLogin: st.screen === 'login', isSignup: st.screen === 'signup',
+      goSignup: () => this.setState({ screen: 'signup' }),
+      goLogin: () => this.setState({ screen: 'login' }),
+      signIn: () => this.setState({ screen: 'app' }),
+      openSettings: () => this.setState({ settingsOpen: true }),
+      closeSettings: () => this.setState({ settingsOpen: false }),
+      settingsOpen: st.settingsOpen,
+      logOut: () => this.setState({ settingsOpen: false, screen: 'login' }),
+      profileName: st.profile.name, profileEmail: st.profile.email, profileInitials: st.profile.name.slice(0, 1).toUpperCase(),
+      unitChips: ['Metric', 'Imperial'].map(u => {
+        const active = (imp ? 'Imperial' : 'Metric') === u;
+        return { short: u, bg: active ? 'oklch(0.75 0.15 60)' : 'transparent', fg: active ? '#26190a' : 'rgba(242,237,230,.55)', onTap: () => this.setState({ units: u === 'Metric' ? 'metric' : 'imperial' }) };
+      }),
+      unitNote: imp ? 'lb · ft/in · fl oz — applied across the whole app' : 'kg · cm · ml — applied across the whole app',
+      sexChips: ['Male', 'Female'].map(x => {
+        const a = st.profile.sex === x;
+        return { label: x, bg: a ? 'oklch(0.75 0.15 60 / .18)' : 'rgba(255,255,255,.05)', bd: a ? 'oklch(0.75 0.15 60 / .45)' : 'rgba(255,255,255,.1)', fg: a ? 'oklch(0.85 0.1 60)' : 'rgba(242,237,230,.55)', onTap: () => this.setState(s2 => ({ profile: { ...s2.profile, sex: x } })) };
+      }),
+      ageLabel: st.profile.age + ' yr',
+      ageInc: () => this.setState(s2 => ({ profile: { ...s2.profile, age: s2.profile.age + 1 } })),
+      ageDec: () => this.setState(s2 => ({ profile: { ...s2.profile, age: Math.max(10, s2.profile.age - 1) } })),
+      heightLabel: imp ? (() => { const ti = st.profile.heightCm / 2.54; const ft = Math.floor(ti / 12); return ft + ' ft ' + Math.round(ti - ft * 12) + ' in'; })() : st.profile.heightCm + ' cm',
+      heightInc: () => this.setState(s2 => ({ profile: { ...s2.profile, heightCm: Math.round((s2.profile.heightCm + (imp ? 2.54 : 1)) * 100) / 100 } })),
+      heightDec: () => this.setState(s2 => ({ profile: { ...s2.profile, heightCm: Math.round((s2.profile.heightCm - (imp ? 2.54 : 1)) * 100) / 100 } })),
+      targetWater: fmtVol(waterTarget),
+      calModeChips: [['fixed', 'Fixed value'], ['offset', 'vs TDEE (±)']].map(([id, label]) => ({
+        label,
+        bg: tg.calMode === id ? 'oklch(0.75 0.15 60)' : 'transparent',
+        fg: tg.calMode === id ? '#26190a' : 'rgba(242,237,230,.55)',
+        onTap: () => this.setState(s2 => ({ targets: { ...s2.targets, calMode: id } }))
+      })),
+      calValueLabel: tg.calMode === 'fixed' ? this.fmtN(tg.calFixed) + ' kcal' : (tg.calOffset >= 0 ? '+' : '') + tg.calOffset + ' kcal',
+      calSubLabel: tg.calMode === 'fixed' ? 'fixed daily target' : (tg.calOffset >= 0 ? 'surplus over TDEE' : 'deficit under TDEE'),
+      calResult: '= ' + this.fmtN(calTarget) + ' kcal target · TDEE ' + this.fmtN(TDEE) + ' (est.)',
+      calInc: () => this.setState(s2 => { const t2 = { ...s2.targets }; if (t2.calMode === 'fixed') t2.calFixed += 50; else t2.calOffset += 50; return { targets: t2 }; }),
+      calDec: () => this.setState(s2 => { const t2 = { ...s2.targets }; if (t2.calMode === 'fixed') t2.calFixed = Math.max(1200, t2.calFixed - 50); else t2.calOffset -= 50; return { targets: t2 }; }),
+      presetChips: ['Default', 'High Protein', 'Keto', 'Custom'].map(n => {
+        const a = tg.macroPreset === n;
+        return {
+          label: n,
+          bg: a ? 'oklch(0.75 0.15 60 / .18)' : 'rgba(255,255,255,.05)',
+          bd: a ? 'oklch(0.75 0.15 60 / .45)' : 'rgba(255,255,255,.1)',
+          fg: a ? 'oklch(0.85 0.1 60)' : 'rgba(242,237,230,.55)',
+          onTap: () => this.setState(s2 => ({ targets: { ...s2.targets, macroPreset: n, ...(n === 'Custom' ? { customC: ratio[0], customF: ratio[1] } : {}) } }))
+        };
+      }),
+      ratioBarC: ratio[0] + '%', ratioBarF: ratio[1] + '%', ratioBarP: ratio[2] + '%',
+      macroCustomNote: tg.macroPreset === 'Custom',
+      macroRows: [
+        { name: 'Carbs', pct: ratio[0], grams: carbTarget, color: 'oklch(0.78 0.11 95)', key: 'customC' },
+        { name: 'Fat', pct: ratio[1], grams: fatTarget, color: 'oklch(0.75 0.11 320)', key: 'customF' },
+        { name: 'Protein', pct: ratio[2], grams: protTarget, color: 'oklch(0.75 0.11 190)', key: null }
+      ].map(mr => ({
+        ...mr,
+        custom: tg.macroPreset === 'Custom' && mr.key !== null,
+        inc: () => this.setState(s2 => { const t2 = { ...s2.targets }; const other = mr.key === 'customC' ? t2.customF : t2.customC; if (100 - t2.customC - t2.customF > 5 + 4) t2[mr.key] = Math.min(85, t2[mr.key] + 5); return { targets: t2 }; }),
+        dec: () => this.setState(s2 => { const t2 = { ...s2.targets }; t2[mr.key] = Math.max(5, t2[mr.key] - 5); return { targets: t2 }; })
+      })),
+      healthBg: st.healthOn ? 'oklch(0.75 0.15 60)' : 'rgba(255,255,255,.12)', healthKnob: st.healthOn ? '20px' : '2px',
+      toggleHealth: () => this.setState(s2 => ({ healthOn: !s2.healthOn })),
+      remindBg: st.remindOn ? 'oklch(0.75 0.15 60)' : 'rgba(255,255,255,.12)', remindKnob: st.remindOn ? '20px' : '2px',
+      toggleRemind: () => this.setState(s2 => ({ remindOn: !s2.remindOn }))
+    };
+  }
+}
+</script>
+</body>
+</html>

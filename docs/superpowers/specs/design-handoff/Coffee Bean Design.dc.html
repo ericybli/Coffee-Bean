@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<style>
+body{margin:0;background:#efeae3;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+a{color:#8a5a2b;text-decoration:none}a:hover{color:#b4762f}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-note{font:400 12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.55);max-width:720px;margin:0 0 24px}
+.dv-group{font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:rgba(0,0,0,.45);margin:36px 0 14px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:#b4762f;color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">定稿 <a class="dv-oid" href="#1c">1c</a> logo + <a class="dv-oid" href="#1e">1e</a> · 去掉 Today tab → Food / Water / Body / Train · MFP 式日期导航</span></div>
+<p class="dv-note">按你的决定：Food 成为主页（承接原 Today 的能量平衡 + 日记）；Water 独立成 tab。日期导航借鉴 MyFitnessPal：标题「今天 ▾」可点开日历选任意日期；下方是当前周条（已记录的日子实心 ✓、今天有圆点标记、未来空圈），点任意一天直接跳转；周条左滑回退一周、再滑再退（<a href="#2c">2c</a> 演示回退后的状态）。</p>
+<div class="dv-opts">
+
+  <!-- 2a Food home with date nav -->
+  <div class="dv-opt" id="2a">
+    <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Food 主页 · 日期头 + 周条 + 能量平衡 + 餐段日记</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">今天</span><span style="color:rgba(242,237,230,.5);font-size:13px">▼</span></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="26" height="26" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="5"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="5" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+          <div style="width:34px;height:34px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:15px">⚙</div>
+        </div>
+      </div>
+      <div style="margin:12px 14px 0;display:flex;justify-content:space-between;padding:0 8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">日</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">一</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">二</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px;position:relative"><span style="position:absolute;top:-8px;width:4px;height:4px;border-radius:50%;background:oklch(0.75 0.15 60)"></span><span style="font-size:10px;color:#f2ede6;font-weight:700">三</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">四</span><div style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(242,237,230,.22)"></div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">五</span><div style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(242,237,230,.22)"></div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">六</span><div style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(242,237,230,.22)"></div></div>
+      </div>
+      <div style="margin:6px 20px 0;text-align:center;font-size:9px;color:rgba(242,237,230,.3)">‹ 左右滑动切换周 ›</div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:16px">
+        <svg width="88" height="88" viewBox="0 0 88 88"><circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"></circle><circle cx="44" cy="44" r="36" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="9" stroke-linecap="round" stroke-dasharray="186 226" transform="rotate(-90 44 44)"></circle><text x="44" y="42" text-anchor="middle" fill="#f2ede6" font-size="17" font-weight="700" font-family="-apple-system,system-ui">2,140</text><text x="44" y="55" text-anchor="middle" fill="rgba(242,237,230,.5)" font-size="9" font-family="-apple-system,system-ui">/ 2,600</text></svg>
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:26px;font-weight:700;letter-spacing:-0.03em;color:oklch(0.75 0.15 60);font-variant-numeric:tabular-nums">+180</span><span style="font-size:12px;color:rgba(242,237,230,.6);white-space:nowrap">kcal 盈余 · <span style="color:oklch(0.72 0.13 150)">达标</span></span></div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <div style="flex:1"><div style="font-size:9px;color:oklch(0.8 0.09 190);white-space:nowrap">蛋白 142/170</div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:3px"><div style="width:84%;height:4px;border-radius:2px;background:oklch(0.75 0.11 190)"></div></div></div>
+            <div style="flex:1"><div style="font-size:9px;color:oklch(0.82 0.09 95);white-space:nowrap">碳水 248/320</div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:3px"><div style="width:78%;height:4px;border-radius:2px;background:oklch(0.78 0.11 95)"></div></div></div>
+            <div style="flex:1"><div style="font-size:9px;color:oklch(0.82 0.09 320);white-space:nowrap">脂肪 61/78</div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:3px"><div style="width:78%;height:4px;border-radius:2px;background:oklch(0.75 0.11 320)"></div></div></div>
+          </div>
+          <div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:7px;white-space:nowrap">TDEE 2,460 · 估算 ⓘ</div>
+        </div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:6px 18px">
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#f2ede6;white-space:nowrap">早餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">548 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">燕麦 + 乳清蛋白粉 + 香蕉</div></div><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#f2ede6;white-space:nowrap">午餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">720 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">鸡胸肉饭 · 西兰花</div></div><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(242,237,230,.55);white-space:nowrap">晚餐</div><div style="font-size:11px;color:rgba(242,237,230,.35);white-space:nowrap">复制昨天 · 或从模板添加</div></div><span style="width:26px;height:26px;border-radius:50%;background:oklch(0.75 0.15 60 / .14);border:1px solid oklch(0.75 0.15 60 / .35);display:flex;align-items:center;justify-content:center;color:oklch(0.85 0.1 60);font-size:14px">＋</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(242,237,230,.55);white-space:nowrap">加餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">872 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">乳清蛋白粉 ×2 · 花生酱吐司</div></div><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+      </div>
+      <div style="margin:12px 20px 0;display:flex;gap:8px">
+        <div style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 0;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:13px;font-weight:700;white-space:nowrap">▣ 扫码记录</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:12px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8);font-size:13px;font-weight:600;white-space:nowrap">搜索</div>
+      </div>
+      <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">◒</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◔</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Water</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+
+  <!-- 2b calendar open -->
+  <div class="dv-opt" id="2b">
+    <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>点「今天 ▾」→ 日历下拉（选任意日期）</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">今天</span><span style="color:oklch(0.75 0.15 60);font-size:13px">▲</span></div>
+        <div style="width:34px;height:34px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:15px">⚙</div>
+      </div>
+      <div style="height:520px;position:relative;overflow:hidden;border-radius:0 0 34px 34px">
+        <div style="position:absolute;inset:0;padding:12px 20px;filter:blur(3px);opacity:.35">
+          <div style="background:#1d1a17;border-radius:20px;height:120px;margin-bottom:12px"></div>
+          <div style="background:#1d1a17;border-radius:20px;height:220px"></div>
+        </div>
+        <div style="position:absolute;top:8px;left:16px;right:16px;background:#221f1b;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:18px 20px;box-shadow:0 18px 50px rgba(0,0,0,.55)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span style="font-size:16px;font-weight:700;color:#f2ede6;white-space:nowrap">2026年7月</span>
+            <div style="display:flex;gap:18px;color:rgba(242,237,230,.7);font-size:15px"><span>‹</span><span style="color:oklch(0.75 0.15 60)">›</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:10px;color:rgba(242,237,230,.4);margin-bottom:8px"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:13px;color:#f2ede6;font-variant-numeric:tabular-nums;row-gap:10px">
+            <span></span><span></span><span></span><span style="color:rgba(242,237,230,.7)">1</span><span style="color:rgba(242,237,230,.7)">2</span><span style="color:rgba(242,237,230,.7)">3</span><span style="color:rgba(242,237,230,.7)">4</span>
+            <span style="color:rgba(242,237,230,.7)">5</span><span style="color:rgba(242,237,230,.7)">6</span><span style="color:rgba(242,237,230,.7)">7</span><span style="color:rgba(242,237,230,.7)">8</span><span style="color:rgba(242,237,230,.7)">9</span><span style="color:rgba(242,237,230,.7)">10</span><span style="color:rgba(242,237,230,.7)">11</span>
+            <span style="color:rgba(242,237,230,.7)">12</span><span style="color:rgba(242,237,230,.7)">13</span><span style="color:rgba(242,237,230,.7)">14</span><span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin:0 auto;border-radius:50%;background:oklch(0.75 0.15 60);color:#26190a;font-weight:700">15</span><span style="color:rgba(242,237,230,.35)">16</span><span style="color:rgba(242,237,230,.35)">17</span><span style="color:rgba(242,237,230,.35)">18</span>
+            <span style="color:rgba(242,237,230,.35)">19</span><span style="color:rgba(242,237,230,.35)">20</span><span style="color:rgba(242,237,230,.35)">21</span><span style="color:rgba(242,237,230,.35)">22</span><span style="color:rgba(242,237,230,.35)">23</span><span style="color:rgba(242,237,230,.35)">24</span><span style="color:rgba(242,237,230,.35)">25</span>
+            <span style="color:rgba(242,237,230,.35)">26</span><span style="color:rgba(242,237,230,.35)">27</span><span style="color:rgba(242,237,230,.35)">28</span><span style="color:rgba(242,237,230,.35)">29</span><span style="color:rgba(242,237,230,.35)">30</span><span style="color:rgba(242,237,230,.35)">31</span><span></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)">
+            <span style="font-size:11px;color:rgba(242,237,230,.4);white-space:nowrap">● 有记录的日子加点标记</span>
+            <span style="font-size:12px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap">回到今天</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2c past week state -->
+  <div class="dv-opt" id="2c">
+    <div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>周条左滑回退一周 · 查看 7月13日（历史日）</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">7月13日</span><span style="color:rgba(242,237,230,.5);font-size:13px">▼</span></div>
+        <span style="padding:6px 13px;border-radius:13px;background:oklch(0.75 0.15 60 / .14);border:1px solid oklch(0.75 0.15 60 / .35);color:oklch(0.85 0.1 60);font-size:12px;font-weight:600;white-space:nowrap">回到今天</span>
+      </div>
+      <div style="margin:12px 14px 0;display:flex;justify-content:space-between;padding:0 8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">日</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:#f2ede6;font-weight:700">一</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700;box-shadow:0 0 0 2.5px #131110, 0 0 0 4.5px oklch(0.75 0.15 60 / .6)">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">二</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">三</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">四</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">五</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:38px"><span style="font-size:10px;color:rgba(242,237,230,.45);font-weight:600">六</span><div style="width:30px;height:30px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:13px;font-weight:700">✓</div></div>
+      </div>
+      <div style="margin:6px 20px 0;display:flex;justify-content:space-between;font-size:9px;color:rgba(242,237,230,.35)"><span>‹ 再滑回上一周（7/5–7/11）</span><span>本周 ›</span></div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:11px;color:rgba(242,237,230,.5);white-space:nowrap">当日结算</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:26px;font-weight:700;color:oklch(0.75 0.15 60);font-variant-numeric:tabular-nums">+205</span><span style="font-size:12px;color:rgba(242,237,230,.6);white-space:nowrap">kcal · <span style="color:oklch(0.72 0.13 150)">达标</span></span></div></div>
+          <div style="text-align:right;font-size:11px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums;line-height:1.7">摄入 2,610<br>TDEE 2,405</div>
+        </div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:6px 18px">
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#f2ede6;white-space:nowrap">早餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">612 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">鸡蛋 ×3 · 吐司 · 拿铁</div></div><span style="color:rgba(242,237,230,.3)">›</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#f2ede6;white-space:nowrap">午餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">804 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">牛肉面 · 卤蛋</div></div><span style="color:rgba(242,237,230,.3)">›</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0"><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#f2ede6;white-space:nowrap">晚餐 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">1,194 kcal</span></div><div style="font-size:11px;color:rgba(242,237,230,.45);white-space:nowrap">三文鱼 · 米饭 · 牛油果</div></div><span style="color:rgba(242,237,230,.3)">›</span></div>
+      </div>
+      <div style="margin:10px 20px 0;font-size:10px;color:rgba(242,237,230,.35);text-align:center">历史日只读回顾 · 仍可补记/修改条目</div>
+      <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">◒</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◔</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Water</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+
+  <!-- 2d water tab -->
+  <div class="dv-opt" id="2d">
+    <div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Water tab（独立后）· 同款日期头复用</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6;white-space:nowrap">今天</span><span style="color:rgba(242,237,230,.5);font-size:13px">▼</span></div>
+        <div style="width:34px;height:34px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:15px">⚙</div>
+      </div>
+      <div style="margin:16px 20px 0;display:flex;justify-content:center">
+        <svg width="180" height="180" viewBox="0 0 180 180"><circle cx="90" cy="90" r="76" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="15"></circle><circle cx="90" cy="90" r="76" fill="none" stroke="oklch(0.75 0.11 240)" stroke-width="15" stroke-linecap="round" stroke-dasharray="310 478" transform="rotate(-90 90 90)"></circle><text x="90" y="84" text-anchor="middle" fill="#f2ede6" font-size="32" font-weight="700" font-family="-apple-system,system-ui">1.3</text><text x="90" y="108" text-anchor="middle" fill="rgba(242,237,230,.5)" font-size="13" font-family="-apple-system,system-ui">/ 2.0 L · 65%</text></svg>
+      </div>
+      <div style="margin:16px 20px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="text-align:center;padding:14px 0;border-radius:16px;background:oklch(0.75 0.11 240 / .13);border:1px solid oklch(0.75 0.11 240 / .35)"><div style="font-size:20px">▯</div><div style="font-size:13px;font-weight:700;color:oklch(0.85 0.07 240);font-variant-numeric:tabular-nums;white-space:nowrap">250 ml</div><div style="font-size:9px;color:rgba(242,237,230,.4);white-space:nowrap">水杯</div></div>
+        <div style="text-align:center;padding:14px 0;border-radius:16px;background:oklch(0.75 0.11 240 / .13);border:1px solid oklch(0.75 0.11 240 / .35)"><div style="font-size:20px">▮</div><div style="font-size:13px;font-weight:700;color:oklch(0.85 0.07 240);font-variant-numeric:tabular-nums;white-space:nowrap">500 ml</div><div style="font-size:9px;color:rgba(242,237,230,.4);white-space:nowrap">运动水壶</div></div>
+        <div style="text-align:center;padding:14px 0;border-radius:16px;background:oklch(0.75 0.11 240 / .13);border:1px solid oklch(0.75 0.11 240 / .35)"><div style="font-size:20px">◍</div><div style="font-size:13px;font-weight:700;color:oklch(0.85 0.07 240);font-variant-numeric:tabular-nums;white-space:nowrap">350 ml</div><div style="font-size:9px;color:rgba(242,237,230,.4);white-space:nowrap">咖啡 ☕</div></div>
+      </div>
+      <div style="margin:8px 20px 0;text-align:right"><span style="font-size:11px;color:rgba(242,237,230,.4)">编辑预设 ›</span></div>
+      <div style="margin:8px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:6px 18px">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">14:20</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">咖啡 · 350 ml</div><span style="color:rgba(242,237,230,.3)">›</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">10:15</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">水 · 500 ml</div><span style="color:rgba(242,237,230,.3)">›</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">07:45</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6;white-space:nowrap">水 · 250 ml ×2</div><span style="color:rgba(242,237,230,.3)">›</span></div>
+      </div>
+      <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◒</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.11 240)">◔</div><div style="font-size:9px;color:oklch(0.75 0.11 240);font-weight:600">Water</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+</div>
+<p class="dv-next">下一步可以说：「<a class="dv-oid" href="#2a">2a</a> 定稿，把 Body/Train 也换成新 tab 栏和日期头」 · 「日历里给有记录的日子加琥珀点」 · 「做成可交互原型（真的能点日期/滑周）」</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Coffee Bean — Logo 方案 · Style tile · v1 界面</span></div>
+<p class="dv-note">背景假设：应用名 Coffee Bean 源自「我和老婆都爱喝咖啡、都在健身」——所以豆形既是咖啡豆，也暗指「两颗豆」（你们俩）。视觉方向按 brief：dark-first、数据仪表感、单一暖琥珀 accent（oklch 0.75 0.15 60），SF 系字体、tabular numerals。四个 logo 方向从最克制到最有故事性排列；界面部分 Today 给三个布局方案（深色）+ 一个浅色适配，Add Food 全流程、Body、Train 各一版。</p>
+
+<!-- ============ LOGOS ============ -->
+<div class="dv-group">Logo 方向 — 4 案（每案：App icon · 小尺寸 · Wordmark）</div>
+<div class="dv-opts">
+
+  <!-- 1a solid glyph -->
+  <div class="dv-opt" id="1a">
+    <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>实心豆 · SF Symbol 式单色符号（最克制）</div>
+    <div class="dv-card" style="width:320px;background:#131110;padding:28px;display:flex;flex-direction:column;gap:24px;align-items:center">
+      <div style="width:120px;height:120px;border-radius:27px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center">
+        <svg width="72" height="72" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="#1d1a17" stroke-width="3.4" fill="none" stroke-linecap="round"></path></g></svg>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center">
+        <svg width="40" height="40" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="#131110" stroke-width="3.4" fill="none" stroke-linecap="round"></path></g></svg>
+        <svg width="24" height="24" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="#131110" stroke-width="4" fill="none" stroke-linecap="round"></path></g></svg>
+        <svg width="16" height="16" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="#131110" stroke-width="5" fill="none" stroke-linecap="round"></path></g></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="26" height="26" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="#131110" stroke-width="4" fill="none" stroke-linecap="round"></path></g></svg>
+        <span style="font-size:22px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Coffee Bean</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1b app icon gradient -->
+  <div class="dv-opt" id="1b">
+    <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>iOS 图标式 · 琥珀渐变底 + 奶油豆</div>
+    <div class="dv-card" style="width:320px;background:#131110;padding:28px;display:flex;flex-direction:column;gap:24px;align-items:center">
+      <div style="width:120px;height:120px;border-radius:27px;background:linear-gradient(160deg, oklch(0.8 0.14 70), oklch(0.62 0.14 50));display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)">
+        <svg width="76" height="76" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="#fdf6ec"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="oklch(0.62 0.14 50)" stroke-width="3.4" fill="none" stroke-linecap="round"></path></g></svg>
+      </div>
+      <div style="display:flex;gap:14px;align-items:center">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(160deg, oklch(0.8 0.14 70), oklch(0.62 0.14 50));display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="#fdf6ec"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="oklch(0.62 0.14 50)" stroke-width="4" fill="none" stroke-linecap="round"></path></g></svg></div>
+        <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(160deg, oklch(0.8 0.14 70), oklch(0.62 0.14 50));display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="#fdf6ec"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="oklch(0.62 0.14 50)" stroke-width="5" fill="none" stroke-linecap="round"></path></g></svg></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(160deg, oklch(0.8 0.14 70), oklch(0.62 0.14 50));display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 48 48"><g transform="rotate(-25 24 24)"><ellipse cx="24" cy="24" rx="13" ry="18" fill="#fdf6ec"></ellipse><path d="M24 6 C 31 15, 17 33, 24 42" stroke="oklch(0.62 0.14 50)" stroke-width="4.5" fill="none" stroke-linecap="round"></path></g></svg></div>
+        <span style="font-size:22px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Coffee Bean</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1c ring + bean -->
+  <div class="dv-opt" id="1c">
+    <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>豆 × 能量环 · 健康隐喻（豆在完成环中）</div>
+    <div class="dv-card" style="width:320px;background:#131110;padding:28px;display:flex;flex-direction:column;gap:24px;align-items:center">
+      <div style="width:120px;height:120px;border-radius:27px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center">
+        <svg width="84" height="84" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="4"></circle>
+          <circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="4" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle>
+          <g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#1d1a17" stroke-width="2.6" fill="none" stroke-linecap="round"></path></g>
+        </svg>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center">
+        <svg width="40" height="40" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="5"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="5" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+        <svg width="22" height="22" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="6" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse></g></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="28" height="28" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="5"></circle><circle cx="32" cy="32" r="26" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="5" stroke-linecap="round" stroke-dasharray="122 163" transform="rotate(-90 32 32)"></circle><g transform="rotate(-25 32 32)"><ellipse cx="32" cy="32" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M32 18.5 C 37 25.5, 27 38.5, 32 45.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+        <span style="font-size:22px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Coffee Bean</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1d two beans -->
+  <div class="dv-opt" id="1d">
+    <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>两颗豆 · 「我们俩」的故事（相互倾斜的一对）</div>
+    <div class="dv-card" style="width:320px;background:#131110;padding:28px;display:flex;flex-direction:column;gap:24px;align-items:center">
+      <div style="width:120px;height:120px;border-radius:27px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center">
+        <svg width="84" height="84" viewBox="0 0 64 64">
+          <g transform="rotate(-30 24 34)"><ellipse cx="24" cy="34" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 20.5 C 29 27.5, 19 40.5, 24 47.5" stroke="#1d1a17" stroke-width="2.6" fill="none" stroke-linecap="round"></path></g>
+          <g transform="rotate(28 41 28)"><ellipse cx="41" cy="28" rx="9.5" ry="13.5" fill="oklch(0.86 0.09 75)"></ellipse><path d="M41 14.5 C 46 21.5, 36 34.5, 41 41.5" stroke="#1d1a17" stroke-width="2.6" fill="none" stroke-linecap="round"></path></g>
+        </svg>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center">
+        <svg width="40" height="40" viewBox="0 0 64 64"><g transform="rotate(-30 24 34)"><ellipse cx="24" cy="34" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 20.5 C 29 27.5, 19 40.5, 24 47.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g><g transform="rotate(28 41 28)"><ellipse cx="41" cy="28" rx="9.5" ry="13.5" fill="oklch(0.86 0.09 75)"></ellipse><path d="M41 14.5 C 46 21.5, 36 34.5, 41 41.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+        <svg width="24" height="24" viewBox="0 0 64 64"><g transform="rotate(-30 24 34)"><ellipse cx="24" cy="34" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse></g><g transform="rotate(28 41 28)"><ellipse cx="41" cy="28" rx="9.5" ry="13.5" fill="oklch(0.86 0.09 75)"></ellipse></g></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="30" height="30" viewBox="0 0 64 64"><g transform="rotate(-30 24 34)"><ellipse cx="24" cy="34" rx="9.5" ry="13.5" fill="oklch(0.75 0.15 60)"></ellipse><path d="M24 20.5 C 29 27.5, 19 40.5, 24 47.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g><g transform="rotate(28 41 28)"><ellipse cx="41" cy="28" rx="9.5" ry="13.5" fill="oklch(0.86 0.09 75)"></ellipse><path d="M41 14.5 C 46 21.5, 36 34.5, 41 41.5" stroke="#131110" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>
+        <span style="font-size:22px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Coffee Bean</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STYLE TILE ============ -->
+<div class="dv-group">Style tile — 色彩角色 · 字阶 · 核心组件</div>
+<div class="dv-opts">
+  <div class="dv-opt" id="1e">
+    <div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Style tile（深色为主，右侧浅色对照）</div>
+    <div class="dv-card" style="width:760px;display:flex">
+      <div style="flex:1;background:#131110;padding:28px;display:flex;flex-direction:column;gap:22px">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;color:rgba(242,237,230,.4)">DARK · 色彩角色</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.75 0.15 60)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">Accent 能量</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.75 0.11 190)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">蛋白质</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.78 0.11 95)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">碳水</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.75 0.11 320)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">脂肪</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.75 0.11 240)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">水</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.72 0.13 150)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">达标</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:oklch(0.68 0.15 25)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">超限</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:center"><div style="width:52px;height:36px;border-radius:8px;background:#1d1a17;border:1px solid rgba(255,255,255,.1)"></div><span style="font-size:9px;color:rgba(242,237,230,.5)">卡片</span></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+        <div style="font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;color:rgba(242,237,230,.4)">字阶 · SF Pro / tabular figures</div>
+        <div style="display:flex;flex-direction:column;gap:6px;color:#f2ede6">
+          <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:1">+180 <span style="font-size:17px;font-weight:600;color:rgba(242,237,230,.5)">kcal</span></div>
+          <div style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Section title · 22 Bold</div>
+          <div style="font-size:17px;font-weight:600">Row title · 17 Semibold</div>
+          <div style="font-size:15px;color:rgba(242,237,230,.85)">Body · 15 Regular</div>
+          <div style="font-size:13px;color:rgba(242,237,230,.55)">Caption · 13 — 估算值、来源说明</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.07)"></div>
+        <div style="font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;color:rgba(242,237,230,.4)">核心组件</div>
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="31" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="8"></circle><circle cx="38" cy="38" r="31" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="8" stroke-linecap="round" stroke-dasharray="160 195" transform="rotate(-90 38 38)"></circle><text x="38" y="36" text-anchor="middle" fill="#f2ede6" font-size="15" font-weight="700" font-family="-apple-system,system-ui">82%</text><text x="38" y="49" text-anchor="middle" fill="rgba(242,237,230,.5)" font-size="8" font-family="-apple-system,system-ui">2,140 kcal</text></svg>
+          <div style="display:flex;flex-direction:column;gap:8px;width:150px">
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(242,237,230,.7);margin-bottom:3px"><span style="white-space:nowrap">蛋白质</span><span style="font-variant-numeric:tabular-nums">142 / 170 g</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.09)"><div style="width:84%;height:6px;border-radius:3px;background:oklch(0.75 0.11 190)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(242,237,230,.7);margin-bottom:3px"><span style="white-space:nowrap">碳水</span><span style="font-variant-numeric:tabular-nums">248 / 320 g</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.09)"><div style="width:78%;height:6px;border-radius:3px;background:oklch(0.78 0.11 95)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(242,237,230,.7);margin-bottom:3px"><span style="white-space:nowrap">脂肪</span><span style="font-variant-numeric:tabular-nums">61 / 78 g</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.09)"><div style="width:78%;height:6px;border-radius:3px;background:oklch(0.75 0.11 320)"></div></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:8px">
+              <div style="padding:8px 14px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#f2ede6;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:oklch(0.75 0.11 240);display:inline-block"></span>250 ml</div>
+              <div style="padding:8px 14px;border-radius:20px;background:oklch(0.75 0.11 240 / .18);border:1px solid oklch(0.75 0.11 240 / .4);color:oklch(0.85 0.08 240);font-size:13px;font-weight:600">500 ml</div>
+            </div>
+            <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;width:190px">
+              <div style="font-size:10px;color:rgba(242,237,230,.5)">趋势体重 <span style="padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.08);font-size:8px;margin-left:4px">估算中</span></div>
+              <div style="font-size:22px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">72.4 <span style="font-size:12px;font-weight:500;color:rgba(242,237,230,.5)">kg</span></div>
+              <div style="font-size:11px;color:oklch(0.72 0.13 150)">+0.31 kg/周 · 在目标区间</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="width:240px;background:#f5f1ec;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;color:rgba(0,0,0,.4)">LIGHT 对照</div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-0.03em;color:#26221d;font-variant-numeric:tabular-nums;line-height:1">+180 <span style="font-size:14px;font-weight:600;color:rgba(38,34,29,.5)">kcal</span></div>
+        <svg width="70" height="70" viewBox="0 0 76 76"><circle cx="38" cy="38" r="31" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="8"></circle><circle cx="38" cy="38" r="31" fill="none" stroke="oklch(0.68 0.15 60)" stroke-width="8" stroke-linecap="round" stroke-dasharray="160 195" transform="rotate(-90 38 38)"></circle><text x="38" y="36" text-anchor="middle" fill="#26221d" font-size="15" font-weight="700" font-family="-apple-system,system-ui">82%</text><text x="38" y="49" text-anchor="middle" fill="rgba(38,34,29,.5)" font-size="8" font-family="-apple-system,system-ui">2,140 kcal</text></svg>
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:12px;padding:10px 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)">
+          <div style="font-size:10px;color:rgba(38,34,29,.5)">趋势体重</div>
+          <div style="font-size:22px;font-weight:700;color:#26221d;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">72.4 <span style="font-size:12px;font-weight:500;color:rgba(38,34,29,.5)">kg</span></div>
+          <div style="font-size:11px;color:oklch(0.55 0.13 150)">+0.31 kg/周 · 在目标区间</div>
+        </div>
+        <div style="font-size:10px;color:rgba(0,0,0,.45);line-height:1.5">浅色下 accent 降亮度到 oklch 0.68 保证对比度；卡片改用白底 + 极浅投影。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TODAY x3 ============ -->
+<div class="dv-group">Today 主界面 — 3 个布局方案（深色）+ 浅色适配</div>
+<div class="dv-opts">
+
+  <!-- 1f ring hero -->
+  <div class="dv-opt" id="1f">
+    <div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>方案 A · 大环 hero（最 Apple Fitness）</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;padding:0;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="display:flex;gap:5px;align-items:center"><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:13px;color:rgba(242,237,230,.5);white-space:nowrap">7月15日 星期三</div><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Today</div></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:16px">⚙</div>
+      </div>
+      <div style="margin:16px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:20px;display:flex;align-items:center;gap:20px">
+        <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"></circle><circle cx="66" cy="66" r="56" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="12" stroke-linecap="round" stroke-dasharray="289 352" transform="rotate(-90 66 66)"></circle><text x="66" y="60" text-anchor="middle" fill="#f2ede6" font-size="26" font-weight="700" font-family="-apple-system,system-ui" letter-spacing="-0.5">2,140</text><text x="66" y="78" text-anchor="middle" fill="rgba(242,237,230,.5)" font-size="11" font-family="-apple-system,system-ui">/ 2,600 kcal</text></svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:32px;font-weight:700;letter-spacing:-0.03em;color:oklch(0.75 0.15 60);font-variant-numeric:tabular-nums;line-height:1">+180</div>
+          <div style="font-size:13px;color:rgba(242,237,230,.7)">kcal 盈余 · <span style="color:oklch(0.72 0.13 150)">达标</span></div>
+          <div style="font-size:11px;color:rgba(242,237,230,.4);margin-top:4px">消耗 TDEE 2,460 · 估算</div>
+        </div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(242,237,230,.75);margin-bottom:4px"><span style="font-weight:600;white-space:nowrap">蛋白质</span><span style="font-variant-numeric:tabular-nums">142 / 170 g</span></div><div style="height:7px;border-radius:4px;background:rgba(255,255,255,.08)"><div style="width:84%;height:7px;border-radius:4px;background:oklch(0.75 0.11 190)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(242,237,230,.6);margin-bottom:4px"><span style="white-space:nowrap">碳水</span><span style="font-variant-numeric:tabular-nums">248 / 320 g</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.08)"><div style="width:78%;height:5px;border-radius:3px;background:oklch(0.78 0.11 95)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(242,237,230,.6);margin-bottom:4px"><span style="white-space:nowrap">脂肪</span><span style="font-variant-numeric:tabular-nums">61 / 78 g</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.08)"><div style="width:78%;height:5px;border-radius:3px;background:oklch(0.75 0.11 320)"></div></div></div>
+      </div>
+      <div style="margin:12px 20px 0;display:flex;gap:12px">
+        <div style="flex:1;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <svg width="46" height="46" viewBox="0 0 46 46"><circle cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"></circle><circle cx="23" cy="23" r="18" fill="none" stroke="oklch(0.75 0.11 240)" stroke-width="6" stroke-linecap="round" stroke-dasharray="73 113" transform="rotate(-90 23 23)"></circle></svg>
+          <div><div style="font-size:16px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums">1.3 <span style="font-size:11px;font-weight:500;color:rgba(242,237,230,.5)">/ 2.0 L</span></div><div style="display:flex;gap:6px;margin-top:5px"><span style="padding:4px 9px;border-radius:12px;background:oklch(0.75 0.11 240 / .15);border:1px solid oklch(0.75 0.11 240 / .35);color:oklch(0.85 0.07 240);font-size:11px;font-weight:600">+250</span><span style="padding:4px 9px;border-radius:12px;background:oklch(0.75 0.11 240 / .15);border:1px solid oklch(0.75 0.11 240 / .35);color:oklch(0.85 0.07 240);font-size:11px;font-weight:600">+500</span></div></div>
+        </div>
+        <div style="width:128px;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 16px">
+          <div style="font-size:10px;color:rgba(242,237,230,.5)">趋势体重</div>
+          <div style="font-size:18px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">72.4 <span style="font-size:10px;font-weight:500;color:rgba(242,237,230,.5)">kg</span></div>
+          <svg width="92" height="22" viewBox="0 0 92 22"><circle cx="6" cy="16" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="20" cy="13" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="34" cy="15" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="48" cy="10" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="62" cy="11" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="76" cy="7" r="1.4" fill="rgba(242,237,230,.25)"></circle><circle cx="88" cy="6" r="1.4" fill="rgba(242,237,230,.25)"></circle><path d="M4 16 C 24 14.5, 44 12, 62 10 S 84 6.5, 90 5.5" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="2" stroke-linecap="round"></path></svg>
+          <div style="font-size:10px;color:oklch(0.72 0.13 150)">+0.31 kg/周</div>
+        </div>
+      </div>
+      <div style="margin:14px 20px 0;display:flex;gap:8px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:oklch(0.75 0.15 60 / .14);border:1px solid oklch(0.75 0.15 60 / .3)"><span style="font-size:17px">＋</span><span style="font-size:10px;font-weight:600;white-space:nowrap;color:oklch(0.85 0.1 60)">加食物</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8)"><span style="font-size:15px">▣</span><span style="font-size:10px;font-weight:600;white-space:nowrap">扫码</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8)"><span style="font-size:15px">◔</span><span style="font-size:10px;font-weight:600;white-space:nowrap">加水</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8)"><span style="font-size:15px">⚖</span><span style="font-size:10px;font-weight:600;white-space:nowrap">记体重</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8)"><span style="font-size:15px">▶</span><span style="font-size:10px;font-weight:600;white-space:nowrap">训练</span></div>
+      </div>
+      <div style="margin:16px 20px 0;display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:13px;font-weight:600;color:rgba(242,237,230,.5);margin-bottom:6px">今日记录</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">12:40</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">午餐 · 鸡胸肉饭</div><div style="font-size:11px;color:rgba(242,237,230,.45)">720 kcal · P 52 · C 78 · F 18</div></div><div style="display:flex;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.75 0.11 190)"></span><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.78 0.11 95)"></span><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.75 0.11 320)"></span></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">10:15</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">水 · 500 ml</div></div><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.75 0.11 240)"></span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">07:30</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">晨重 · 72.6 kg</div><div style="font-size:11px;color:rgba(242,237,230,.45)">趋势 72.4 kg</div></div></div>
+      </div>
+      <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">●</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Today</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◒</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+
+  <!-- 1g number first -->
+  <div class="dv-opt" id="1g">
+    <div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>方案 B · 数字优先（typography 即 UI，最像交易终端）</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;padding:0;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 24px 0;display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;color:rgba(242,237,230,.5);white-space:nowrap">7月15日 星期三</div><div style="width:32px;height:32px;border-radius:50%;background:#1d1a17;border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.7);font-size:14px">⚙</div></div>
+      <div style="padding:20px 24px 0">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.06em;color:rgba(242,237,230,.45);text-transform:uppercase">今日盈余</div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:2px">
+          <span style="font-size:72px;font-weight:700;letter-spacing:-0.045em;color:oklch(0.75 0.15 60);font-variant-numeric:tabular-nums;line-height:1">+180</span>
+          <span style="font-size:17px;font-weight:600;color:rgba(242,237,230,.5)">kcal</span>
+          <span style="padding:3px 9px;border-radius:12px;background:oklch(0.72 0.13 150 / .15);border:1px solid oklch(0.72 0.13 150 / .35);color:oklch(0.78 0.11 150);font-size:12px;font-weight:600;white-space:nowrap">达标</span>
+        </div>
+        <div style="margin-top:12px;height:8px;border-radius:4px;background:rgba(255,255,255,.08);position:relative"><div style="width:82%;height:8px;border-radius:4px;background:oklch(0.75 0.15 60)"></div><div style="position:absolute;left:94.6%;top:-3px;width:2px;height:14px;background:rgba(242,237,230,.5);border-radius:1px"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(242,237,230,.45);margin-top:6px;font-variant-numeric:tabular-nums"><span style="white-space:nowrap">摄入 2,140</span><span style="white-space:nowrap">目标 2,600 · TDEE 2,460 估算</span></div>
+      </div>
+      <div style="margin:20px 24px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 15px"><div style="font-size:10px;color:oklch(0.8 0.08 190);font-weight:600">蛋白质</div><div style="font-size:24px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">142<span style="font-size:12px;font-weight:500;color:rgba(242,237,230,.45)"> /170g</span></div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:6px"><div style="width:84%;height:4px;border-radius:2px;background:oklch(0.75 0.11 190)"></div></div></div>
+        <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 15px"><div style="font-size:10px;color:oklch(0.82 0.08 95);font-weight:600">碳水</div><div style="font-size:24px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">248<span style="font-size:12px;font-weight:500;color:rgba(242,237,230,.45)"> /320g</span></div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:6px"><div style="width:78%;height:4px;border-radius:2px;background:oklch(0.78 0.11 95)"></div></div></div>
+        <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 15px"><div style="font-size:10px;color:oklch(0.82 0.08 320);font-weight:600">脂肪</div><div style="font-size:24px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">61<span style="font-size:12px;font-weight:500;color:rgba(242,237,230,.45)"> /78g</span></div><div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:6px"><div style="width:78%;height:4px;border-radius:2px;background:oklch(0.75 0.11 320)"></div></div></div>
+        <div style="background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 15px"><div style="font-size:10px;color:oklch(0.82 0.08 240);font-weight:600">水</div><div style="font-size:24px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">1.3<span style="font-size:12px;font-weight:500;color:rgba(242,237,230,.45)"> /2.0L</span></div><div style="display:flex;gap:5px;margin-top:5px"><span style="padding:2px 8px;border-radius:9px;background:oklch(0.75 0.11 240 / .15);border:1px solid oklch(0.75 0.11 240 / .35);color:oklch(0.85 0.07 240);font-size:10px;font-weight:600;white-space:nowrap">+250</span><span style="padding:2px 8px;border-radius:9px;background:oklch(0.75 0.11 240 / .15);border:1px solid oklch(0.75 0.11 240 / .35);color:oklch(0.85 0.07 240);font-size:10px;font-weight:600;white-space:nowrap">+500</span></div></div>
+      </div>
+      <div style="margin:12px 24px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><div style="font-size:10px;color:rgba(242,237,230,.5)">趋势体重 · 周速率</div><div style="font-size:20px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">72.4 kg <span style="font-size:12px;color:oklch(0.72 0.13 150);font-weight:600">+0.31/周</span></div></div>
+        <svg width="110" height="30" viewBox="0 0 110 30"><circle cx="8" cy="22" r="1.5" fill="rgba(242,237,230,.25)"></circle><circle cx="26" cy="18" r="1.5" fill="rgba(242,237,230,.25)"></circle><circle cx="44" cy="20" r="1.5" fill="rgba(242,237,230,.25)"></circle><circle cx="62" cy="14" r="1.5" fill="rgba(242,237,230,.25)"></circle><circle cx="80" cy="12" r="1.5" fill="rgba(242,237,230,.25)"></circle><circle cx="100" cy="8" r="1.5" fill="rgba(242,237,230,.25)"></circle><path d="M6 22 C 30 19, 55 16, 75 12 S 98 8, 106 7" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="2" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="margin:16px 24px 0">
+        <div style="font-size:13px;font-weight:600;color:rgba(242,237,230,.5);margin-bottom:4px">今日记录</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">12:40</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6">午餐 · 鸡胸肉饭</div><span style="font-size:12px;color:rgba(242,237,230,.5);font-variant-numeric:tabular-nums">720 kcal</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">10:15</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6">水 · 500 ml</div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:9px 0"><span style="font-size:11px;color:rgba(242,237,230,.4);width:38px;font-variant-numeric:tabular-nums">07:30</span><div style="flex:1;font-size:14px;font-weight:600;color:#f2ede6">晨重 · 72.6 kg</div></div>
+      </div>
+      <div style="margin:14px 24px 0;display:flex;gap:8px">
+        <div style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 0;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:13px;font-weight:700">＋ 加食物</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:13px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8);font-size:13px;font-weight:600">▣ 扫码</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:13px 0;border-radius:14px;background:#1d1a17;border:1px solid rgba(255,255,255,.08);color:rgba(242,237,230,.8);font-size:13px;font-weight:600">⚖</div>
+      </div>
+      <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">●</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Today</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◒</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+
+  <!-- 1h light adaptation -->
+  <div class="dv-opt" id="1h">
+    <div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>方案 A 的浅色适配（暖白底 · accent 降亮）</div>
+    <div class="dv-card" style="width:393px;background:#f5f1ec;border-radius:40px;padding:0;border:6px solid #d9d2c8">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#26221d;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(38,34,29,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#26221d;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:13px;color:rgba(38,34,29,.5);white-space:nowrap">7月15日 星期三</div><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#26221d">Today</div></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;color:rgba(38,34,29,.6);font-size:16px">⚙</div>
+      </div>
+      <div style="margin:16px 20px 0;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:20px;display:flex;align-items:center;gap:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+        <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="12"></circle><circle cx="66" cy="66" r="56" fill="none" stroke="oklch(0.68 0.15 60)" stroke-width="12" stroke-linecap="round" stroke-dasharray="289 352" transform="rotate(-90 66 66)"></circle><text x="66" y="60" text-anchor="middle" fill="#26221d" font-size="26" font-weight="700" font-family="-apple-system,system-ui">2,140</text><text x="66" y="78" text-anchor="middle" fill="rgba(38,34,29,.5)" font-size="11" font-family="-apple-system,system-ui">/ 2,600 kcal</text></svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:32px;font-weight:700;letter-spacing:-0.03em;color:oklch(0.6 0.15 60);font-variant-numeric:tabular-nums;line-height:1">+180</div>
+          <div style="font-size:13px;color:rgba(38,34,29,.7)">kcal 盈余 · <span style="color:oklch(0.55 0.13 150)">达标</span></div>
+          <div style="font-size:11px;color:rgba(38,34,29,.4);margin-top:4px">消耗 TDEE 2,460 · 估算</div>
+        </div>
+      </div>
+      <div style="margin:12px 20px 0;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:16px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(38,34,29,.8);margin-bottom:4px"><span style="font-weight:600;white-space:nowrap">蛋白质</span><span style="font-variant-numeric:tabular-nums">142 / 170 g</span></div><div style="height:7px;border-radius:4px;background:rgba(0,0,0,.06)"><div style="width:84%;height:7px;border-radius:4px;background:oklch(0.62 0.11 190)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(38,34,29,.6);margin-bottom:4px"><span style="white-space:nowrap">碳水</span><span style="font-variant-numeric:tabular-nums">248 / 320 g</span></div><div style="height:5px;border-radius:3px;background:rgba(0,0,0,.06)"><div style="width:78%;height:5px;border-radius:3px;background:oklch(0.68 0.11 95)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(38,34,29,.6);margin-bottom:4px"><span style="white-space:nowrap">脂肪</span><span style="font-variant-numeric:tabular-nums">61 / 78 g</span></div><div style="height:5px;border-radius:3px;background:rgba(0,0,0,.06)"><div style="width:78%;height:5px;border-radius:3px;background:oklch(0.62 0.11 320)"></div></div></div>
+      </div>
+      <div style="margin:12px 20px 0;display:flex;gap:12px">
+        <div style="flex:1;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+          <svg width="46" height="46" viewBox="0 0 46 46"><circle cx="23" cy="23" r="18" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="6"></circle><circle cx="23" cy="23" r="18" fill="none" stroke="oklch(0.62 0.11 240)" stroke-width="6" stroke-linecap="round" stroke-dasharray="73 113" transform="rotate(-90 23 23)"></circle></svg>
+          <div><div style="font-size:16px;font-weight:700;color:#26221d;font-variant-numeric:tabular-nums">1.3 <span style="font-size:11px;font-weight:500;color:rgba(38,34,29,.5)">/ 2.0 L</span></div><div style="display:flex;gap:6px;margin-top:5px"><span style="padding:4px 9px;border-radius:12px;background:oklch(0.62 0.11 240 / .1);border:1px solid oklch(0.62 0.11 240 / .3);color:oklch(0.48 0.11 240);font-size:11px;font-weight:600">+250</span><span style="padding:4px 9px;border-radius:12px;background:oklch(0.62 0.11 240 / .1);border:1px solid oklch(0.62 0.11 240 / .3);color:oklch(0.48 0.11 240);font-size:11px;font-weight:600">+500</span></div></div>
+        </div>
+        <div style="width:128px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+          <div style="font-size:10px;color:rgba(38,34,29,.5)">趋势体重</div>
+          <div style="font-size:18px;font-weight:700;color:#26221d;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">72.4 <span style="font-size:10px;font-weight:500;color:rgba(38,34,29,.5)">kg</span></div>
+          <svg width="92" height="22" viewBox="0 0 92 22"><circle cx="6" cy="16" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="20" cy="13" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="34" cy="15" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="48" cy="10" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="62" cy="11" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="76" cy="7" r="1.4" fill="rgba(38,34,29,.2)"></circle><circle cx="88" cy="6" r="1.4" fill="rgba(38,34,29,.2)"></circle><path d="M4 16 C 24 14.5, 44 12, 62 10 S 84 6.5, 90 5.5" fill="none" stroke="oklch(0.6 0.15 60)" stroke-width="2" stroke-linecap="round"></path></svg>
+          <div style="font-size:10px;color:oklch(0.55 0.13 150)">+0.31 kg/周</div>
+        </div>
+      </div>
+      <div style="margin:14px 20px 0;display:flex;gap:8px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:oklch(0.68 0.15 60 / .13);border:1px solid oklch(0.68 0.15 60 / .35);color:oklch(0.5 0.13 60)"><span style="font-size:17px">＋</span><span style="font-size:10px;font-weight:600;white-space:nowrap">加食物</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.07);color:rgba(38,34,29,.7)"><span style="font-size:15px">▣</span><span style="font-size:10px;font-weight:600;white-space:nowrap">扫码</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.07);color:rgba(38,34,29,.7)"><span style="font-size:15px">◔</span><span style="font-size:10px;font-weight:600;white-space:nowrap">加水</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.07);color:rgba(38,34,29,.7)"><span style="font-size:15px">⚖</span><span style="font-size:10px;font-weight:600;white-space:nowrap">记体重</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.07);color:rgba(38,34,29,.7)"><span style="font-size:15px">▶</span><span style="font-size:10px;font-weight:600;white-space:nowrap">训练</span></div>
+      </div>
+      <div style="margin-top:16px;border-top:1px solid rgba(0,0,0,.07);display:flex;padding:10px 8px 6px;background:#fff;border-radius:0 0 34px 34px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.6 0.15 60)">●</div><div style="font-size:9px;color:oklch(0.6 0.15 60);font-weight:600">Today</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(38,34,29,.35)">◒</div><div style="font-size:9px;color:rgba(38,34,29,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(38,34,29,.35)">↗</div><div style="font-size:9px;color:rgba(38,34,29,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(38,34,29,.35)">◫</div><div style="font-size:9px;color:rgba(38,34,29,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(38,34,29,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD FOOD FLOW ============ -->
+<div class="dv-group">Add Food 流程 — 库/搜索 → 扫码 → 份量选择 → 未找到→手动</div>
+<div class="dv-opts">
+  <div class="dv-opt" id="1i">
+    <div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>四步流程（sheet 形态，最高频路径）</div>
+    <div class="dv-card" style="width:1328px;max-width:none;background:#0d0c0b;padding:24px;display:flex;gap:20px;align-items:flex-start">
+
+      <!-- step 1 library -->
+      <div style="width:300px;flex:none">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;color:rgba(242,237,230,.4);margin-bottom:8px">① 添加食物 SHEET · 最近优先</div>
+        <div style="background:#1a1815;border-radius:24px 24px 18px 18px;border:1px solid rgba(255,255,255,.08);overflow:hidden">
+          <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+          <div style="padding:12px 16px 0;display:flex;justify-content:space-between;align-items:center"><span style="font-size:18px;font-weight:700;color:#f2ede6;white-space:nowrap">添加到午餐</span><span style="font-size:13px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap">取消</span></div>
+          <div style="margin:12px 16px 0;display:flex;gap:8px">
+            <div style="flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border-radius:11px;padding:9px 12px;color:rgba(242,237,230,.4);font-size:14px">⌕ 搜索食物库</div>
+            <div style="width:42px;display:flex;align-items:center;justify-content:center;background:oklch(0.75 0.15 60);border-radius:11px;color:#26190a;font-size:17px">▣</div>
+          </div>
+          <div style="margin:12px 16px 0;display:flex;gap:14px;font-size:13px;font-weight:600">
+            <span style="color:#f2ede6;border-bottom:2px solid oklch(0.75 0.15 60);padding-bottom:5px;white-space:nowrap">最近</span><span style="color:rgba(242,237,230,.45);white-space:nowrap">收藏</span><span style="color:rgba(242,237,230,.45);white-space:nowrap">全部</span><span style="color:rgba(242,237,230,.45);white-space:nowrap">模板</span>
+          </div>
+          <div style="padding:4px 16px 14px">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">鸡胸肉（生）</div><div style="font-size:11px;color:rgba(242,237,230,.45)">100 g · 165 kcal</div></div><span style="color:oklch(0.78 0.13 85);font-size:13px">★</span><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">乳清蛋白粉 <span style="font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.08);color:rgba(242,237,230,.5);font-weight:500">OFF</span></div><div style="font-size:11px;color:rgba(242,237,230,.45)">1 勺 (32 g) · 122 kcal</div></div><span style="color:oklch(0.78 0.13 85);font-size:13px">★</span><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">白米饭（熟）</div><div style="font-size:11px;color:rgba(242,237,230,.45)">1 碗 (200 g) · 260 kcal</div></div><span style="color:rgba(242,237,230,.25);font-size:13px">☆</span><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:oklch(0.75 0.15 60);font-size:14px">＋</span></div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <div style="flex:1;text-align:center;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);color:rgba(242,237,230,.6);font-size:12px;font-weight:600">复制昨天</div>
+              <div style="flex:1;text-align:center;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);color:rgba(242,237,230,.6);font-size:12px;font-weight:600">手动创建</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- step 2 scanner -->
+      <div style="width:300px;flex:none">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;color:rgba(242,237,230,.4);margin-bottom:8px">② 扫码 · 相机 + 引导</div>
+        <div style="background:#000;border-radius:24px;border:1px solid rgba(255,255,255,.08);overflow:hidden;position:relative;height:430px">
+          <svg width="100%" height="100%" viewBox="0 0 300 430" preserveAspectRatio="none" style="position:absolute;inset:0"><defs><pattern id="cam" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#161310"></rect><rect width="7" height="14" fill="#1b1815"></rect></pattern></defs><rect width="300" height="430" fill="url(#cam)"></rect></svg>
+          <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:space-between;padding:0 18px"><span style="color:#fff;font-size:13px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.7)">✕</span><span style="color:#fff;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.7)">🔦</span></div>
+          <div style="position:absolute;top:120px;left:50px;right:50px;height:130px">
+            <div style="position:absolute;top:0;left:0;width:26px;height:26px;border-top:3px solid oklch(0.75 0.15 60);border-left:3px solid oklch(0.75 0.15 60);border-radius:6px 0 0 0"></div>
+            <div style="position:absolute;top:0;right:0;width:26px;height:26px;border-top:3px solid oklch(0.75 0.15 60);border-right:3px solid oklch(0.75 0.15 60);border-radius:0 6px 0 0"></div>
+            <div style="position:absolute;bottom:0;left:0;width:26px;height:26px;border-bottom:3px solid oklch(0.75 0.15 60);border-left:3px solid oklch(0.75 0.15 60);border-radius:0 0 0 6px"></div>
+            <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-bottom:3px solid oklch(0.75 0.15 60);border-right:3px solid oklch(0.75 0.15 60);border-radius:0 0 6px 0"></div>
+            <div style="position:absolute;left:10px;right:10px;top:62px;height:2px;background:oklch(0.75 0.15 60 / .8);border-radius:1px"></div>
+          </div>
+          <div style="position:absolute;top:270px;left:0;right:0;text-align:center;color:rgba(255,255,255,.75);font-size:13px">对准包装上的条形码</div>
+          <div style="position:absolute;bottom:18px;left:18px;right:18px;text-align:center;padding:12px;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:600;backdrop-filter:blur(6px)">手动输入</div>
+        </div>
+      </div>
+
+      <!-- step 3 serving picker -->
+      <div style="width:300px;flex:none">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;color:rgba(242,237,230,.4);margin-bottom:8px">③ 识别成功 → 份量选择 · 实时宏量</div>
+        <div style="background:#1a1815;border-radius:24px;border:1px solid rgba(255,255,255,.08);overflow:hidden">
+          <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+          <div style="padding:14px 18px 0">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px;font-weight:700;color:#f2ede6;white-space:nowrap">乳清蛋白粉</span><span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.08);color:rgba(242,237,230,.55)">Open Food Facts</span></div>
+            <div style="font-size:12px;color:rgba(242,237,230,.45);margin-top:2px">Myprotein · Impact Whey</div>
+          </div>
+          <div style="margin:14px 18px 0;display:flex;gap:8px">
+            <span style="padding:8px 13px;border-radius:12px;background:oklch(0.75 0.15 60 / .16);border:1px solid oklch(0.75 0.15 60 / .4);color:oklch(0.85 0.1 60);font-size:13px;font-weight:600;white-space:nowrap">1 勺 · 32 g</span>
+            <span style="padding:8px 13px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(242,237,230,.7);font-size:13px;white-space:nowrap">100 g</span>
+            <span style="padding:8px 13px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(242,237,230,.7);font-size:13px;white-space:nowrap">自定义</span>
+          </div>
+          <div style="margin:14px 18px 0;display:flex;align-items:center;justify-content:center;gap:22px">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#f2ede6;font-size:20px">−</div>
+            <div style="text-align:center"><div style="font-size:44px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1">2</div><div style="font-size:11px;color:rgba(242,237,230,.45)">勺</div></div>
+            <div style="width:44px;height:44px;border-radius:50%;background:oklch(0.75 0.15 60);display:flex;align-items:center;justify-content:center;color:#26190a;font-size:20px">＋</div>
+          </div>
+          <div style="margin:14px 18px 0;background:rgba(255,255,255,.04);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;font-variant-numeric:tabular-nums">
+            <div style="text-align:center"><div style="font-size:17px;font-weight:700;color:#f2ede6">244</div><div style="font-size:10px;color:rgba(242,237,230,.45)">kcal</div></div>
+            <div style="text-align:center"><div style="font-size:17px;font-weight:700;color:oklch(0.8 0.09 190)">42g</div><div style="font-size:10px;color:rgba(242,237,230,.45)">蛋白</div></div>
+            <div style="text-align:center"><div style="font-size:17px;font-weight:700;color:oklch(0.82 0.09 95)">5g</div><div style="font-size:10px;color:rgba(242,237,230,.45)">碳水</div></div>
+            <div style="text-align:center"><div style="font-size:17px;font-weight:700;color:oklch(0.82 0.09 320)">4g</div><div style="font-size:10px;color:rgba(242,237,230,.45)">脂肪</div></div>
+          </div>
+          <div style="margin:12px 18px 0;display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;color:rgba(242,237,230,.5);white-space:nowrap">餐段</span>
+            <span style="padding:6px 12px;border-radius:11px;background:oklch(0.75 0.15 60 / .16);border:1px solid oklch(0.75 0.15 60 / .4);color:oklch(0.85 0.1 60);font-size:12px;font-weight:600;white-space:nowrap">午餐</span>
+            <span style="padding:6px 12px;border-radius:11px;background:rgba(255,255,255,.06);color:rgba(242,237,230,.6);font-size:12px;white-space:nowrap">加餐</span>
+          </div>
+          <div style="margin:14px 18px 16px;text-align:center;padding:14px;border-radius:14px;background:oklch(0.75 0.15 60);color:#26190a;font-size:15px;font-weight:700">记录 · 244 kcal</div>
+        </div>
+      </div>
+
+      <!-- step 4 not found -->
+      <div style="width:300px;flex:none">
+        <div style="font:600 10px ui-monospace,Menlo,monospace;color:rgba(242,237,230,.4);margin-bottom:8px">④ 未找到 / 离线 → 预填手动表单</div>
+        <div style="background:#1a1815;border-radius:24px;border:1px solid rgba(255,255,255,.08);overflow:hidden">
+          <div style="width:40px;height:4px;border-radius:2px;background:rgba(242,237,230,.25);margin:8px auto 0"></div>
+          <div style="padding:14px 18px 0">
+            <div style="font-size:17px;font-weight:700;color:#f2ede6">没找到这个条码</div>
+            <div style="font-size:12px;color:rgba(242,237,230,.5);margin-top:3px;line-height:1.5">添加一次就会永久保存到你的食物库。条码已自动带入。</div>
+          </div>
+          <div style="padding:14px 18px 4px;display:flex;flex-direction:column;gap:9px">
+            <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:rgba(242,237,230,.4)">名称</div><div style="font-size:14px;color:rgba(242,237,230,.35)">例如：花生酱</div></div>
+            <div style="display:flex;gap:9px">
+              <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:rgba(242,237,230,.4)">条码</div><div style="font-size:13px;color:#f2ede6;font-variant-numeric:tabular-nums">6921168593</div></div>
+              <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:rgba(242,237,230,.4)">每 100 g kcal</div><div style="font-size:13px;color:rgba(242,237,230,.35)">—</div></div>
+            </div>
+            <div style="display:flex;gap:9px">
+              <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid oklch(0.75 0.11 190 / .35);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:oklch(0.8 0.09 190)">蛋白 g</div><div style="font-size:13px;color:rgba(242,237,230,.35)">—</div></div>
+              <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid oklch(0.78 0.11 95 / .35);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:oklch(0.82 0.09 95)">碳水 g</div><div style="font-size:13px;color:rgba(242,237,230,.35)">—</div></div>
+              <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid oklch(0.75 0.11 320 / .35);border-radius:11px;padding:10px 13px"><div style="font-size:9px;color:oklch(0.82 0.09 320)">脂肪 g</div><div style="font-size:13px;color:rgba(242,237,230,.35)">—</div></div>
+            </div>
+            <div style="background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);border-radius:11px;padding:10px 13px;font-size:12px;color:rgba(242,237,230,.5)">＋ 添加份量单位（如「1 勺 = 15 g」）</div>
+          </div>
+          <div style="margin:12px 18px 16px;text-align:center;padding:14px;border-radius:14px;background:rgba(255,255,255,.08);color:rgba(242,237,230,.4);font-size:15px;font-weight:700">保存并记录</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BODY ============ -->
+<div class="dv-group">Body · Train — 各一版</div>
+<div class="dv-opts">
+  <div class="dv-opt" id="1j">
+    <div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>Body · 体重趋势 + DEXA</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:28px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">Body</div><span style="font-size:13px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap">＋ 记体重</span></div>
+      <div style="margin:14px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div><div style="font-size:11px;color:rgba(242,237,230,.5)">趋势体重</div><div style="font-size:34px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;line-height:1.1">72.4 <span style="font-size:15px;font-weight:500;color:rgba(242,237,230,.5)">kg</span></div></div>
+          <div style="text-align:right"><div style="font-size:11px;color:rgba(242,237,230,.5)">周速率</div><div style="font-size:17px;font-weight:700;color:oklch(0.72 0.13 150);font-variant-numeric:tabular-nums">+0.31 kg/周</div><div style="font-size:10px;color:rgba(242,237,230,.4);white-space:nowrap">目标 0.18–0.36 · 在区间</div></div>
+        </div>
+        <svg width="100%" height="150" viewBox="0 0 320 150" style="margin-top:10px">
+          <rect x="0" y="38" width="320" height="34" fill="oklch(0.72 0.13 150 / .06)"></rect>
+          <line x1="0" y1="30" x2="320" y2="30" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="70" x2="320" y2="70" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="110" x2="320" y2="110" stroke="rgba(255,255,255,.05)"></line>
+          <circle cx="14" cy="118" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="38" cy="108" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="62" cy="120" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="86" cy="98" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="110" cy="104" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="134" cy="88" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="158" cy="95" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="182" cy="78" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="206" cy="84" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="230" cy="68" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="254" cy="72" r="2" fill="rgba(242,237,230,.22)"></circle><circle cx="278" cy="58" r="2" fill="rgba(242,237,230,.22)"></circle>
+          <path d="M10 118 C 60 110, 110 100, 160 90 S 250 68, 285 58" fill="none" stroke="oklch(0.75 0.15 60)" stroke-width="2.5" stroke-linecap="round"></path>
+          <path d="M285 58 C 298 54, 308 51, 318 47" fill="none" stroke="oklch(0.75 0.15 60 / .5)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"></path>
+          <line x1="0" y1="24" x2="320" y2="24" stroke="oklch(0.72 0.13 150 / .5)" stroke-dasharray="3 4"></line>
+          <text x="316" y="18" text-anchor="end" fill="oklch(0.78 0.1 150)" font-size="9" font-family="-apple-system,system-ui">目标 75.0</text>
+          <line x1="110" y1="30" x2="110" y2="140" stroke="rgba(242,237,230,.15)" stroke-dasharray="2 4"></line>
+          <text x="110" y="148" text-anchor="middle" fill="rgba(242,237,230,.35)" font-size="8" font-family="-apple-system,system-ui">DEXA 5/2</text>
+        </svg>
+        <div style="font-size:10px;color:rgba(242,237,230,.4);margin-top:6px">趋势线滞后于体重秤——这是有意的 ⓘ</div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:15px;font-weight:700;color:#f2ede6;white-space:nowrap">DEXA 扫描</span><span style="font-size:12px;color:oklch(0.75 0.15 60);font-weight:600;white-space:nowrap">＋ 添加</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">2026年5月2日</div><div style="font-size:11px;color:rgba(242,237,230,.45)">体脂 14.2% · 瘦体重 59.8 kg · 脂肪 9.9 kg</div></div><span style="font-size:9px;padding:2px 6px;border-radius:4px;background:oklch(0.75 0.15 60 / .15);border:1px solid oklch(0.75 0.15 60 / .35);color:oklch(0.85 0.1 60);font-weight:600">RMR 来源</span><span style="color:rgba(242,237,230,.3)">›</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f2ede6">2026年1月18日</div><div style="font-size:11px;color:rgba(242,237,230,.45)">体脂 15.8% · 瘦体重 58.1 kg · 脂肪 10.7 kg</div></div><span style="color:rgba(242,237,230,.3)">›</span></div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+        <div style="font-size:15px;font-weight:700;color:#f2ede6;margin-bottom:8px">身体成分 <span style="font-size:10px;font-weight:500;color:rgba(242,237,230,.4)">测量点 · 点间为插值</span></div>
+        <svg width="100%" height="90" viewBox="0 0 320 90">
+          <line x1="0" y1="25" x2="320" y2="25" stroke="rgba(255,255,255,.05)"></line><line x1="0" y1="55" x2="320" y2="55" stroke="rgba(255,255,255,.05)"></line>
+          <path d="M30 60 L 160 44 L 290 30" fill="none" stroke="oklch(0.75 0.11 190)" stroke-width="2"></path>
+          <circle cx="30" cy="60" r="3.5" fill="oklch(0.75 0.11 190)"></circle><circle cx="160" cy="44" r="3.5" fill="oklch(0.75 0.11 190)"></circle><circle cx="290" cy="30" r="3.5" fill="oklch(0.75 0.11 190)"></circle>
+          <path d="M30 68 L 160 66 L 290 62" fill="none" stroke="oklch(0.75 0.11 320)" stroke-width="2"></path>
+          <circle cx="30" cy="68" r="3.5" fill="oklch(0.75 0.11 320)"></circle><circle cx="160" cy="66" r="3.5" fill="oklch(0.75 0.11 320)"></circle><circle cx="290" cy="62" r="3.5" fill="oklch(0.75 0.11 320)"></circle>
+          <text x="30" y="82" text-anchor="middle" fill="rgba(242,237,230,.35)" font-size="8" font-family="-apple-system,system-ui">9/25</text><text x="160" y="82" text-anchor="middle" fill="rgba(242,237,230,.35)" font-size="8" font-family="-apple-system,system-ui">1/26</text><text x="290" y="82" text-anchor="middle" fill="rgba(242,237,230,.35)" font-size="8" font-family="-apple-system,system-ui">5/26</text>
+        </svg>
+        <div style="display:flex;gap:14px;font-size:10px;color:rgba(242,237,230,.55)"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:oklch(0.75 0.11 190)"></span>瘦体重</span><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:oklch(0.75 0.11 320)"></span>脂肪量</span></div>
+      </div>
+      <div style="margin:12px 20px 4px;padding:0 4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:rgba(242,237,230,.4)">BMI 22.3 · 仅供参考——对肌肉量大的人有误导</span></div>
+      <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">●</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Today</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◒</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">↗</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◫</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+
+  <!-- 1k train -->
+  <div class="dv-opt" id="1k">
+    <div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>Train · 进行中的训练（Previous 列）</div>
+    <div class="dv-card" style="width:393px;background:#131110;border-radius:40px;border:6px solid #2a2724">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px 4px;color:#f2ede6;font-size:14px;font-weight:600"><span>9:41</span><div style="width:16px;height:10px;border:1px solid rgba(242,237,230,.5);border-radius:3px;position:relative"><div style="position:absolute;inset:1.5px;right:5px;background:#f2ede6;border-radius:1px"></div></div></div>
+      <div style="padding:8px 20px 0;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:12px;color:oklch(0.75 0.15 60);font-weight:600;font-variant-numeric:tabular-nums">● 进行中 · 42:18</div><div style="font-size:24px;font-weight:700;letter-spacing:-0.02em;color:#f2ede6">推日 · 胸肩三头</div></div>
+        <div style="padding:8px 16px;border-radius:14px;background:oklch(0.72 0.13 150 / .15);border:1px solid oklch(0.72 0.13 150 / .4);color:oklch(0.78 0.11 150);font-size:13px;font-weight:700;white-space:nowrap">完成</div>
+      </div>
+      <div style="margin:12px 20px 0;display:flex;gap:10px">
+        <div style="flex:1;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 14px"><div style="font-size:10px;color:rgba(242,237,230,.5)">总容量</div><div style="font-size:18px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums">6,240 <span style="font-size:10px;font-weight:500;color:rgba(242,237,230,.5)">kg</span></div></div>
+        <div style="flex:1;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 14px"><div style="font-size:10px;color:rgba(242,237,230,.5)">组数</div><div style="font-size:18px;font-weight:700;color:#f2ede6;font-variant-numeric:tabular-nums">11 / 16</div></div>
+      </div>
+      <div style="margin:14px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:700;color:#f2ede6;white-space:nowrap">卧推（杠铃）</span><span style="font-size:11px;color:rgba(242,237,230,.4);white-space:nowrap">历史 ›</span></div>
+        <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 36px;gap:8px;align-items:center;margin-top:10px;font-size:10px;color:rgba(242,237,230,.4)"><span>组</span><span>上次</span><span style="text-align:center">kg</span><span style="text-align:center">次数</span><span></span></div>
+        <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 36px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:11px;color:rgba(242,237,230,.4)">W</span><span style="font-size:12px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">60 × 12</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:rgba(255,255,255,.05);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">60</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:rgba(255,255,255,.05);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">12</span>
+          <span style="width:26px;height:26px;border-radius:8px;background:oklch(0.72 0.13 150);display:flex;align-items:center;justify-content:center;color:#0d1f14;font-size:13px;font-weight:700">✓</span>
+        </div>
+        <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 36px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:11px;color:rgba(242,237,230,.6);font-weight:600">1</span><span style="font-size:12px;color:rgba(242,237,230,.45);font-variant-numeric:tabular-nums">100 × 8</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:rgba(255,255,255,.05);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">100</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:rgba(255,255,255,.05);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">9</span>
+          <span style="width:26px;height:26px;border-radius:8px;background:oklch(0.72 0.13 150);display:flex;align-items:center;justify-content:center;color:#0d1f14;font-size:13px;font-weight:700">✓</span>
+        </div>
+        <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 36px;gap:8px;align-items:center;padding:8px 0">
+          <span style="font-size:11px;color:rgba(242,237,230,.6);font-weight:600">2</span>
+          <span style="font-size:12px;color:oklch(0.85 0.1 60);font-variant-numeric:tabular-nums;font-weight:600">100 × 8 ↵</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:oklch(0.75 0.15 60 / .12);border:1px solid oklch(0.75 0.15 60 / .4);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">100</span>
+          <span style="text-align:center;padding:7px 0;border-radius:9px;background:oklch(0.75 0.15 60 / .12);border:1px solid oklch(0.75 0.15 60 / .4);font-size:14px;font-weight:600;color:#f2ede6;font-variant-numeric:tabular-nums">8</span>
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(242,237,230,.35);font-size:13px">✓</span>
+        </div>
+        <div style="margin-top:8px;text-align:center;padding:9px;border-radius:11px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.14);color:rgba(242,237,230,.55);font-size:12px;font-weight:600">＋ 加一组</div>
+      </div>
+      <div style="margin:12px 20px 0;background:#1d1a17;border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:15px;font-weight:700;color:#f2ede6">坐姿哑铃肩推</div><div style="font-size:11px;color:rgba(242,237,230,.45)">上次 26 kg × 10 · 3 组</div></div>
+        <span style="color:rgba(242,237,230,.3)">›</span>
+      </div>
+      <div style="margin:12px 20px 0;text-align:center;padding:13px;border-radius:14px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);color:rgba(242,237,230,.6);font-size:13px;font-weight:600">＋ 添加动作</div>
+      <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;padding:10px 8px 6px">
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">●</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Today</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">◒</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Food</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:rgba(242,237,230,.35)">↗</div><div style="font-size:9px;color:rgba(242,237,230,.35)">Body</div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:17px;color:oklch(0.75 0.15 60)">◫</div><div style="font-size:9px;color:oklch(0.75 0.15 60);font-weight:600">Train</div></div>
+      </div>
+      <div style="width:120px;height:5px;border-radius:3px;background:rgba(242,237,230,.3);margin:4px auto 10px"></div>
+    </div>
+  </div>
+</div>
+
+<p class="dv-next">下一步可以说：「logo 定 <a class="dv-oid" href="#1c">1c</a>，用到所有界面左上角」 · 「Today 用 <a class="dv-oid" href="#1f">1f</a>，再出 Food 日记页」 · 「<a class="dv-oid" href="#1d">1d</a> 的两颗豆换成一深一浅琥珀」</p>
+</section>
+
+</x-dc>
+</body>
+</html>
