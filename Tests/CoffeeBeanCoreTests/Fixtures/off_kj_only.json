@@ -1,0 +1,4 @@
+{ "status": 1, "code": "1111111111111",
+  "product": { "product_name": "KJ Only Bar", "nutrition_data_per": "100g",
+    "nutriments": { "energy-kj_100g": "1000", "proteins_100g": "5",
+      "carbohydrates_100g": 20, "fat_100g": 10 } } }
