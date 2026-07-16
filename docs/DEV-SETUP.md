@@ -184,3 +184,38 @@ xcrun devicectl device install app --device <ID> \
 - Data is local SwiftData. Deleting the app deletes the data (CloudKit backup comes
   with the paid account + sync workstream). The 7-day free-account expiry does **not**
   delete data — rerunning from Xcode refreshes the app in place.
+
+---
+
+## 7. Xcode Cloud → TestFlight (when the dev Mac can't run Xcode 26)
+
+**Situation:** the iPhones run iOS 26.x but this Mac is pinned to macOS 15.2, which
+caps local Xcode at 16.3 (iOS 18.4 SDK) — too old to deploy to the devices or to pass
+App Store Connect's iOS 26 SDK upload requirement (in force since April 2026).
+
+**Solution:** build in **Xcode Cloud** (included with the paid Apple Developer
+Program — 25 free compute hours/month). Local Mac keeps doing simulator development
+with Xcode 16.3; the cloud builds with Xcode 26 and pushes to TestFlight.
+
+Already prepared in this repo:
+- `App/CoffeeBean.xcodeproj` is **committed** (with a shared scheme) — Xcode Cloud
+  builds straight from the repo. It's still generated from `App/project.yml`:
+  after editing project.yml, run `cd App && xcodegen generate` and commit the result.
+- Repo pushed to **private GitHub: `ericybli/Coffee-Bean`**.
+
+One-time setup (GUI, ~15 min):
+1. Local Xcode 16.3: open `App/CoffeeBean.xcodeproj` → menu **Integrate → Create
+   Workflow…** (or Report navigator → Cloud tab) → sign in with the paid Apple ID.
+2. Grant Xcode Cloud access to the GitHub repo when prompted (installs Apple's
+   GitHub App on `ericybli/Coffee-Bean`).
+3. Workflow settings: **Environment → newest Xcode 26.x**; Start Condition → branch
+   (e.g. `master` or `docs/health-app-spec`); Action → **Archive - iOS**;
+   Post-action → **TestFlight (Internal Testing)**. Xcode Cloud manages signing
+   automatically (cloud-managed certificates) and can create the App Store Connect
+   app record for `com.month2month.coffeebean` during setup.
+4. App Store Connect → TestFlight → Internal Testing group → add your (and your
+   partner's) Apple IDs. Phones install via the TestFlight app.
+
+After that, every push to the watched branch = automatic cloud build → TestFlight
+update on the phones. If Xcode 16.3's workflow editor misbehaves, workflows can also
+be edited in the App Store Connect web UI (Xcode Cloud tab).
