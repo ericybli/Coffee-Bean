@@ -51,4 +51,49 @@ enum SampleData {
             DrinkLog(timestamp: at(15, 45), volumeMl: 250, drinkTypeRaw: "water", name: "Glass"),
         ]
     }
+
+    // MARK: Food
+
+    /// A small starter library of common foods.
+    static func libraryFoods() -> [Food] {
+        [
+            Food(name: "Chicken breast", kcalPer100g: 165, proteinPer100g: 31,
+                 carbPer100g: 0, fatPer100g: 3.6, servingLabel: "100 g", servingGrams: 100),
+            Food(name: "White rice (cooked)", kcalPer100g: 130, proteinPer100g: 2.7,
+                 carbPer100g: 28, fatPer100g: 0.3, servingLabel: "1 cup", servingGrams: 158),
+            Food(name: "Rolled oats", kcalPer100g: 379, proteinPer100g: 13,
+                 carbPer100g: 67, fatPer100g: 6.5, servingLabel: "1/2 cup", servingGrams: 40),
+            Food(name: "Whole egg", kcalPer100g: 155, proteinPer100g: 13,
+                 carbPer100g: 1.1, fatPer100g: 11, servingLabel: "1 egg", servingGrams: 50),
+            Food(name: "Banana", kcalPer100g: 89, proteinPer100g: 1.1,
+                 carbPer100g: 23, fatPer100g: 0.3, servingLabel: "1 medium", servingGrams: 118),
+            Food(name: "Whey protein", isFavorite: true, kcalPer100g: 400, proteinPer100g: 80,
+                 carbPer100g: 8, fatPer100g: 6, servingLabel: "1 scoop", servingGrams: 30),
+        ]
+    }
+
+    /// A partial day of diary entries built from the starter library.
+    static func foodLogEntries(from foods: [Food]) -> [FoodLogEntry] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+
+        func entry(_ food: Food, _ servings: Double, _ slot: MealSlot, _ hour: Int) -> FoodLogEntry {
+            let t = food.totals(servings: servings)
+            return FoodLogEntry(
+                day: today, mealSlotRaw: slot.rawValue, foodID: food.id, foodName: food.name,
+                servingLabel: food.servingLabel, quantity: servings,
+                kcal: t.kcal, proteinG: t.protein, carbG: t.carb, fatG: t.fat,
+                loggedAt: cal.date(bySettingHour: hour, minute: 0, second: 0, of: today) ?? today)
+        }
+        func food(_ name: String) -> Food? { foods.first { $0.name == name } }
+
+        var out: [FoodLogEntry] = []
+        if let f = food("Rolled oats") { out.append(entry(f, 1.5, .breakfast, 8)) }
+        if let f = food("Whole egg") { out.append(entry(f, 3, .breakfast, 8)) }
+        if let f = food("Chicken breast") { out.append(entry(f, 2, .lunch, 13)) }
+        if let f = food("White rice (cooked)") { out.append(entry(f, 1.5, .lunch, 13)) }
+        if let f = food("Whey protein") { out.append(entry(f, 1, .snacks, 16)) }
+        if let f = food("Banana") { out.append(entry(f, 1, .snacks, 16)) }
+        return out
+    }
 }

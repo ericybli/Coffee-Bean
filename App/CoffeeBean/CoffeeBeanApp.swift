@@ -11,6 +11,7 @@ struct CoffeeBeanApp: App {
         .modelContainer(for: [
             WeightEntry.self, BodyScan.self, Profile.self,
             DrinkPreset.self, DrinkLog.self,
+            Food.self, FoodLogEntry.self,
         ])
     }
 }
