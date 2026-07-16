@@ -8,6 +8,9 @@ struct CoffeeBeanApp: App {
             RootTabView()
                 .preferredColorScheme(.dark)
         }
-        .modelContainer(for: [WeightEntry.self, BodyScan.self, Profile.self])
+        .modelContainer(for: [
+            WeightEntry.self, BodyScan.self, Profile.self,
+            DrinkPreset.self, DrinkLog.self,
+        ])
     }
 }

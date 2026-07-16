@@ -7,6 +7,7 @@ final class Profile {
     var id: UUID = UUID()
     var heightCm: Double = 178
     var unitSystemRaw: String = "metric"
+    var waterGoalMl: Double = 2000
 
     init() {}
 }
