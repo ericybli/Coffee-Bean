@@ -9,10 +9,12 @@ packages:
     path: ..
 settings:
   base:
-    CODE_SIGN_IDENTITY: ""
-    CODE_SIGNING_REQUIRED: "NO"
-    CODE_SIGNING_ALLOWED: "NO"
     SWIFT_VERSION: "5.0"
+    # Automatic signing for device runs. Select your (personal) team once in
+    # Xcode > Signing & Capabilities, or set DEVELOPMENT_TEAM here to persist it:
+    # DEVELOPMENT_TEAM: "ABCDE12345"
+    CODE_SIGN_STYLE: Automatic
+    # Simulator-only builds from the CLI still pass CODE_SIGNING_ALLOWED=NO explicitly.
 targets:
   CoffeeBean:
     type: application

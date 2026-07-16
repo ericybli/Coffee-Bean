@@ -116,3 +116,71 @@ brew install xcodegen
 # 3. A free Apple ID is enough to start (CloudKit sync needs the paid program later).
 ```
 Ping me once `xcodebuild -version` prints an Xcode version and I'll wire up the app project.
+
+---
+
+## 6. Running on a physical iPhone (真机)
+
+The project is already configured for **automatic signing** (`CODE_SIGN_STYLE: Automatic`
+in `App/project.yml`). What's left is one-time account + device setup.
+
+### 6.0 Xcode version vs your iPhone's iOS — check first
+Xcode can only deploy to devices whose iOS it knows. Currently installed: **Xcode 16.3
+(iOS 18.4 SDK)**.
+- iPhone on **iOS 18.x** → deploy today with Xcode 16.3.
+- iPhone on **iOS 26** (the 17 Pro Max ships with it) → you need **Xcode 26** from the
+  Mac App Store. If the App Store refuses, update macOS first (Xcode 26 needs a newer
+  macOS Sequoia point release), then:
+  ```bash
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+  xcodebuild -runFirstLaunch
+  ```
+  The project's iOS 18 deployment target is unaffected.
+
+### 6.1 Apple ID (free is fine to start)
+Xcode → **Settings → Accounts → +** → sign in with your Apple ID. A **Personal Team**
+appears automatically.
+- **Free account:** installs expire after **7 days** (rerun from Xcode to refresh),
+  ~3 sideloaded apps max, **no iCloud/CloudKit entitlement**. HealthKit *is* allowed.
+- **Paid Apple Developer ($99/yr):** 1-year profiles, CloudKit, TestFlight. Needed
+  later for sync anyway.
+
+### 6.2 Pick the team (once)
+`open App/CoffeeBean.xcodeproj` → select the **CoffeeBean** target → **Signing &
+Capabilities** → check **Automatically manage signing** → **Team: (your name) Personal
+Team**. Xcode creates the certificate + provisioning profile automatically.
+- To survive `xcodegen generate` regenerations, also bake the team in: tell me the
+  Team ID (Xcode → Settings → Accounts → your team, or the Membership page) and I'll
+  set `DEVELOPMENT_TEAM` in `project.yml`; after that no manual step ever again.
+- If the bundle ID collides ("identifier is not available"), change
+  `PRODUCT_BUNDLE_IDENTIFIER` in `project.yml` (e.g. add a suffix).
+
+### 6.3 Prepare the iPhone (once)
+1. **Settings → Privacy & Security → Developer Mode → On** (phone restarts). If the
+   toggle is hidden, it appears after the first time Xcode sees the device.
+2. Plug in via USB-C, tap **Trust This Computer** on the phone.
+3. (Optional) In Xcode's Devices window enable **Connect via network** for cable-free
+   deploys afterwards.
+
+### 6.4 Run
+Xcode: pick your iPhone in the run-destination dropdown → **⌘R**.
+First launch on a free account: the phone blocks the app — go to **Settings → General →
+VPN & Device Management → (your Apple ID) → Trust**, then launch again.
+
+CLI alternative once the team is set:
+```bash
+cd App && xcodegen generate
+xcodebuild -project CoffeeBean.xcodeproj -scheme CoffeeBean \
+  -destination 'generic/platform=iOS' -configuration Debug build
+xcrun devicectl list devices            # find the device id
+xcrun devicectl device install app --device <ID> \
+  "$(xcodebuild -project CoffeeBean.xcodeproj -scheme CoffeeBean -showBuildSettings 2>/dev/null \
+     | awk -F' = ' '/ CODESIGNING_FOLDER_PATH /{print $2}' | head -1)"
+```
+
+### 6.5 Notes for real usage
+- Demo/seed data (`CB_SEED` etc.) is env-gated and never runs on device — you start
+  clean; default water presets + starter foods still seed.
+- Data is local SwiftData. Deleting the app deletes the data (CloudKit backup comes
+  with the paid account + sync workstream). The 7-day free-account expiry does **not**
+  delete data — rerunning from Xcode refreshes the app in place.
