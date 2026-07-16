@@ -1,10 +1,12 @@
 import SwiftUI
+import CoffeeBeanCore
 
-/// Log a custom drink: pick a type and volume (±50 ml).
+/// Log a custom drink: pick a type and volume (±50 ml canonical; display follows units).
 struct AddDrinkSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var type = "Water"
     @State private var volumeMl: Double = 250
+    var system: UnitSystem = .metric
     /// (displayName, volumeMl, drinkTypeRaw)
     let onSave: (String, Double, String) -> Void
 
@@ -28,7 +30,7 @@ struct AddDrinkSheet: View {
                         }
                         .padding(.horizontal)
                     }
-                    Text("\(Int(volumeMl)) ml")
+                    Text(Units.volume(volumeMl, system))
                         .font(.system(size: 44, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.water)
                     HStack(spacing: 28) {

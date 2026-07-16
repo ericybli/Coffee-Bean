@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
+import CoffeeBeanCore
 
-/// Adjust each preset's size (±50 ml). Changes apply live.
+/// Adjust each preset's size (±50 ml canonical; display follows units). Changes apply live.
 struct EditPresetsSheet: View {
     @Environment(\.dismiss) private var dismiss
     let presets: [DrinkPreset]
+    var system: UnitSystem = .metric
 
     var body: some View {
         NavigationStack {
@@ -15,7 +17,7 @@ struct EditPresetsSheet: View {
                             Image(systemName: preset.iconName).foregroundStyle(Theme.water)
                             Text(preset.label).foregroundStyle(Theme.textPrimary)
                             Spacer()
-                            Text("\(Int(preset.volumeMl)) ml").foregroundStyle(Theme.textSecondary)
+                            Text(Units.volume(preset.volumeMl, system)).foregroundStyle(Theme.textSecondary)
                         }
                     }
                 }

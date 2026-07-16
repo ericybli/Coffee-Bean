@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoffeeBeanCore
 
 /// Water tracking: blue ring vs daily goal, one-tap preset quick-add, custom drink, day log.
 struct WaterTabView: View {
@@ -12,6 +13,7 @@ struct WaterTabView: View {
     @State private var showEditPresets = false
 
     private var goalMl: Double { profiles.first?.waterGoalMl ?? 2000 }
+    private var system: UnitSystem { profiles.first?.unitSystem ?? .metric }
     private var todayLogs: [DrinkLog] { allLogs.filter { Calendar.current.isDateInToday($0.timestamp) } }
     private var consumedMl: Double { todayLogs.reduce(0) { $0 + $1.volumeMl } }
 
@@ -21,7 +23,7 @@ struct WaterTabView: View {
         ScreenScaffold(title: "Water") {
             ScrollView {
                 VStack(spacing: 20) {
-                    WaterRing(consumedMl: consumedMl, goalMl: goalMl).padding(.top, 8)
+                    WaterRing(consumedMl: consumedMl, goalMl: goalMl, system: system).padding(.top, 8)
 
                     Button { showEditPresets = true } label: {
                         Text("Edit presets ›").font(.footnote).foregroundStyle(Theme.textSecondary)
@@ -38,12 +40,12 @@ struct WaterTabView: View {
             }
         }
         .sheet(isPresented: $showAddDrink) {
-            AddDrinkSheet { name, volume, typeRaw in
+            AddDrinkSheet(system: system) { name, volume, typeRaw in
                 context.insert(DrinkLog(timestamp: Date(), volumeMl: volume,
                                         drinkTypeRaw: typeRaw, name: name))
             }
         }
-        .sheet(isPresented: $showEditPresets) { EditPresetsSheet(presets: presets) }
+        .sheet(isPresented: $showEditPresets) { EditPresetsSheet(presets: presets, system: system) }
     }
 
     // MARK: - Tiles
@@ -53,7 +55,7 @@ struct WaterTabView: View {
             VStack(spacing: 6) {
                 Image(systemName: preset.iconName).font(.title2)
                 Text(preset.label).font(.subheadline).bold()
-                Text("\(Int(preset.volumeMl)) ml").font(.caption).foregroundStyle(Theme.textSecondary)
+                Text(Units.volume(preset.volumeMl, system)).font(.caption).foregroundStyle(Theme.textSecondary)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 18)
             .background(Theme.water.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
@@ -90,7 +92,8 @@ struct WaterTabView: View {
                             .frame(width: 56, alignment: .leading)
                         Text(log.name).foregroundStyle(Theme.textPrimary)
                         Spacer()
-                        Text("\(Int(log.volumeMl)) ml").foregroundStyle(Theme.textSecondary)
+                        Text(Units.volume(log.volumeMl, system)).monospacedDigit()
+                            .foregroundStyle(Theme.textSecondary)
                         Button { context.delete(log) } label: {
                             Image(systemName: "xmark").font(.caption)
                         }

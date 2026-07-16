@@ -14,10 +14,18 @@ struct BodyTabView: View {
     @State private var showAddDEXA = false
 
     private var heightCm: Double? { profiles.first?.heightCm }
+    private var system: UnitSystem { profiles.first?.unitSystem ?? .metric }
     private var metrics: BodyMetrics { BodyMetrics(weights: weights, heightCm: heightCm) }
     private var shownPoints: [TrendPoint] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -range.days, to: Date()) ?? .distantPast
-        return metrics.trend.filter { $0.date >= cutoff }
+        let window = metrics.trend.filter { $0.date >= cutoff }
+        guard system == .imperial else { return window }
+        // Convert for display; canonical stays kg.
+        return window.map {
+            TrendPoint(date: $0.date,
+                       rawAverage: $0.rawAverage.map { Units.massValue($0, .imperial) },
+                       trend: Units.massValue($0.trend, .imperial))
+        }
     }
 
     var body: some View {
@@ -37,7 +45,7 @@ struct BodyTabView: View {
             }
         }
         .sheet(isPresented: $showLogWeight) {
-            LogWeightSheet(initial: metrics.currentTrendKg ?? 72) { kg in
+            LogWeightSheet(initialKg: metrics.currentTrendKg ?? 72, system: system) { kg in
                 context.insert(WeightEntry(date: Date(), massKg: kg))
             }
         }
@@ -88,8 +96,9 @@ struct BodyTabView: View {
         if let rate = metrics.weeklyRateKg {
             VStack(alignment: .trailing, spacing: 2) {
                 Text("Weekly rate").font(.caption).foregroundStyle(Theme.textSecondary)
-                Text(String(format: "%+.2f kg/wk", rate))
-                    .font(.headline).foregroundStyle(rateColor(rate))
+                Text(String(format: "%+.2f %@/wk", Units.massValue(rate, system),
+                            system == .metric ? "kg" : "lb"))
+                    .font(.headline).monospacedDigit().foregroundStyle(rateColor(rate))
             }
         }
     }
@@ -134,7 +143,7 @@ struct BodyTabView: View {
 
     private var currentWeightText: String {
         guard let kg = metrics.currentTrendKg else { return "—" }
-        return String(format: "%.1f kg", kg)
+        return Units.mass(kg, system)
     }
 
     private func rateColor(_ rate: Double) -> Color {
@@ -149,7 +158,7 @@ struct BodyTabView: View {
     private func dexaSummary(_ scan: BodyScan) -> String {
         var parts: [String] = []
         if let bf = scan.bodyFatFraction { parts.append(String(format: "Body fat %.1f%%", bf * 100)) }
-        if let lean = scan.leanMassKg { parts.append(String(format: "Lean %.1f kg", lean)) }
+        if let lean = scan.leanMassKg { parts.append("Lean \(Units.mass(lean, system))") }
         if let rmr = scan.rmrKcal { parts.append(String(format: "RMR %.0f", rmr)) }
         return parts.joined(separator: " · ")
     }

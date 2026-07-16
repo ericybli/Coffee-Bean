@@ -11,6 +11,11 @@ enum AppSeeder {
 
         // Always-on defaults.
         if isEmpty(Profile.self) { context.insert(Profile()) }
+        // DEBUG screenshot hook: CB_UNITS=imperial|metric forces the unit system.
+        if let sys = ProcessInfo.processInfo.environment["CB_UNITS"],
+           let profile = try? context.fetch(FetchDescriptor<Profile>()).first {
+            profile.unitSystemRaw = sys
+        }
         if isEmpty(DrinkPreset.self) {
             for p in SampleData.defaultDrinkPresets() { context.insert(p) }
         }

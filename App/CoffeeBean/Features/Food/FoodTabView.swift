@@ -8,6 +8,8 @@ struct FoodTabView: View {
     @Query(sort: \FoodLogEntry.loggedAt) private var entries: [FoodLogEntry]
     @Query private var foods: [Food]
     @Query(sort: \BodyScan.date, order: .reverse) private var scans: [BodyScan]
+    @Query(sort: \WeightEntry.date, order: .reverse) private var weights: [WeightEntry]
+    @Query private var profiles: [Profile]
 
     @State private var addSlot: MealSlot?
     @State private var pendingScan = false
@@ -17,16 +19,10 @@ struct FoodTabView: View {
         entries.filter { Calendar.current.isDateInToday($0.day) }
     }
 
-    /// RMR by spec §5.1 priority: latest authoritative DEXA RMR → Katch-McArdle from the latest
-    /// scan with lean mass → 1600 fallback (Mifflin needs sex/age/weight the v1 Profile lacks).
+    /// Full spec §5.1 RMR priority via CoffeeBeanCore: DEXA > Katch-McArdle > Mifflin-St Jeor.
     private var rmr: Double {
-        if let measured = scans.first(where: { $0.isRMRAuthoritative && $0.rmrKcal != nil })?.rmrKcal {
-            return measured
-        }
-        if let lean = scans.first(where: { $0.leanMassKg != nil })?.leanMassKg {
-            return BMR.katchMcArdle(leanMassKg: lean)
-        }
-        return 1600
+        EnergyResolver.rmr(profile: profiles.first, scans: scans,
+                           latestWeightKg: weights.first?.massKg).value
     }
 
     var body: some View {
@@ -37,7 +33,7 @@ struct FoodTabView: View {
             carbG: today.reduce(0) { $0 + $1.carbG },
             fatG: today.reduce(0) { $0 + $1.fatG })
         let bySlot = Dictionary(grouping: today) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
-        let targets = NutritionTargets(rmr: rmr)
+        let targets = NutritionTargets(rmr: rmr, profile: profiles.first)
 
         return ScreenScaffold(title: "Food") {
             ScrollView {
