@@ -3,8 +3,10 @@ import SwiftData
 import CoffeeBeanCore
 
 /// Water tracking: blue ring vs daily goal, one-tap preset quick-add, custom drink, day log.
+/// Scoped to the shared selected day — past days backfill, future days read-only.
 struct WaterTabView: View {
     @Environment(\.modelContext) private var context
+    @Environment(DateNav.self) private var nav
     @Query(sort: \DrinkPreset.sortIndex) private var presets: [DrinkPreset]
     @Query(sort: \DrinkLog.timestamp, order: .reverse) private var allLogs: [DrinkLog]
     @Query private var profiles: [Profile]
@@ -14,13 +16,21 @@ struct WaterTabView: View {
 
     private var goalMl: Double { profiles.first?.waterGoalMl ?? 2000 }
     private var system: UnitSystem { profiles.first?.unitSystem ?? .metric }
-    private var todayLogs: [DrinkLog] { allLogs.filter { Calendar.current.isDateInToday($0.timestamp) } }
-    private var consumedMl: Double { todayLogs.reduce(0) { $0 + $1.volumeMl } }
+    private var dayLogs: [DrinkLog] {
+        allLogs.filter { Calendar.current.isDate($0.timestamp, inSameDayAs: nav.selectedDay) }
+    }
+    private var consumedMl: Double { dayLogs.reduce(0) { $0 + $1.volumeMl } }
+    /// Timestamp for a log on the selected day (now for today, noon for backfilled days).
+    private var logTimestamp: Date {
+        nav.isToday
+            ? Date()
+            : Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: nav.selectedDay) ?? nav.selectedDay
+    }
 
     private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
-        ScreenScaffold(title: "Water") {
+        DatedScreenScaffold {
             ScrollView {
                 VStack(spacing: 20) {
                     WaterRing(consumedMl: consumedMl, goalMl: goalMl, system: system).padding(.top, 8)
@@ -29,19 +39,24 @@ struct WaterTabView: View {
                         Text("Edit presets ›").font(.footnote).foregroundStyle(Theme.textSecondary)
                     }
 
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(presets) { preset in presetTile(preset) }
-                        customTile
+                    if nav.isFuture {
+                        Text("Future day — nothing logged yet")
+                            .font(.footnote).foregroundStyle(Theme.textSecondary)
+                    } else {
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(presets) { preset in presetTile(preset) }
+                            customTile
+                        }
                     }
 
-                    if !todayLogs.isEmpty { dayLogCard }
+                    if !dayLogs.isEmpty { dayLogCard }
                 }
                 .padding(20)
             }
         }
         .sheet(isPresented: $showAddDrink) {
             AddDrinkSheet(system: system) { name, volume, typeRaw in
-                context.insert(DrinkLog(timestamp: Date(), volumeMl: volume,
+                context.insert(DrinkLog(timestamp: logTimestamp, volumeMl: volume,
                                         drinkTypeRaw: typeRaw, name: name))
             }
         }
@@ -84,8 +99,8 @@ struct WaterTabView: View {
     private var dayLogCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Today").font(.headline).foregroundStyle(Theme.textPrimary)
-                ForEach(todayLogs) { log in
+                Text(nav.title).font(.headline).foregroundStyle(Theme.textPrimary)
+                ForEach(dayLogs) { log in
                     HStack {
                         Text(log.timestamp, format: .dateTime.hour().minute())
                             .font(.caption).foregroundStyle(Theme.textSecondary)
@@ -107,7 +122,7 @@ struct WaterTabView: View {
     // MARK: - Actions
 
     private func addFromPreset(_ preset: DrinkPreset) {
-        context.insert(DrinkLog(timestamp: Date(), volumeMl: preset.volumeMl,
+        context.insert(DrinkLog(timestamp: logTimestamp, volumeMl: preset.volumeMl,
                                 drinkTypeRaw: preset.drinkTypeRaw, name: preset.label))
     }
 }

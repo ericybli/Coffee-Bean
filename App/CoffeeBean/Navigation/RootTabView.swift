@@ -7,6 +7,7 @@ struct RootTabView: View {
 
     @Environment(\.modelContext) private var context
     @State private var selection: Tab = RootTabView.initialTab()
+    @State private var dateNav = DateNav()
 
     var body: some View {
         TabView(selection: $selection) {
@@ -24,6 +25,7 @@ struct RootTabView: View {
                 .tag(Tab.train)
         }
         .tint(Theme.accent)
+        .environment(dateNav)
         .onAppear { AppSeeder.seedIfNeeded(context) }
     }
 

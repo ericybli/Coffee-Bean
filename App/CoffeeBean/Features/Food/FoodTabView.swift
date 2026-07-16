@@ -3,8 +3,11 @@ import SwiftData
 import CoffeeBeanCore
 
 /// Food (home): calories + macros vs targets, the meal diary, and quick add.
+/// Scoped to the shared selected day — past days are editable (backfill),
+/// future days are read-only (design §1).
 struct FoodTabView: View {
     @Environment(\.modelContext) private var context
+    @Environment(DateNav.self) private var nav
     @Query(sort: \FoodLogEntry.loggedAt) private var entries: [FoodLogEntry]
     @Query private var foods: [Food]
     @Query(sort: \BodyScan.date, order: .reverse) private var scans: [BodyScan]
@@ -15,8 +18,8 @@ struct FoodTabView: View {
     @State private var pendingScan = false
     @State private var didAutoOpen = false
 
-    private var todayEntries: [FoodLogEntry] {
-        entries.filter { Calendar.current.isDateInToday($0.day) }
+    private var dayEntries: [FoodLogEntry] {
+        entries.filter { Calendar.current.isDate($0.day, inSameDayAs: nav.selectedDay) }
     }
 
     /// Full spec §5.1 RMR priority via CoffeeBeanCore: DEXA > Katch-McArdle > Mifflin-St Jeor.
@@ -26,24 +29,25 @@ struct FoodTabView: View {
     }
 
     var body: some View {
-        let today = todayEntries
-        let consumed = today.reduce(0) { $0 + $1.kcal }
+        let day = dayEntries
+        let consumed = day.reduce(0) { $0 + $1.kcal }
         let macros = Macros(
-            proteinG: today.reduce(0) { $0 + $1.proteinG },
-            carbG: today.reduce(0) { $0 + $1.carbG },
-            fatG: today.reduce(0) { $0 + $1.fatG })
-        let bySlot = Dictionary(grouping: today) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
+            proteinG: day.reduce(0) { $0 + $1.proteinG },
+            carbG: day.reduce(0) { $0 + $1.carbG },
+            fatG: day.reduce(0) { $0 + $1.fatG })
+        let bySlot = Dictionary(grouping: day) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
         let targets = NutritionTargets(rmr: rmr, profile: profiles.first)
 
-        return ScreenScaffold(title: "Food") {
+        return DatedScreenScaffold {
             ScrollView {
                 VStack(spacing: 16) {
                     CaloriesCard(consumed: consumed, target: targets.calorieTarget, tdee: targets.tdee)
                     MacrosCard(consumed: macros, target: targets.macroTargets)
                     MealDiaryCard(entriesBySlot: bySlot,
+                                  allowAdd: !nav.isFuture,
                                   onAdd: { open($0, scan: false) },
                                   onDelete: { context.delete($0) })
-                    ctaRow
+                    if !nav.isFuture { ctaRow }
                 }
                 .padding(20)
             }
@@ -91,8 +95,9 @@ struct FoodTabView: View {
         let m = food.totals(servings: servings)
         food.lastUsedAt = Date()
         context.insert(FoodLogEntry(
-            day: Calendar.current.startOfDay(for: Date()), mealSlotRaw: slot.rawValue,
+            day: nav.selectedDay, mealSlotRaw: slot.rawValue,
             foodID: food.id, foodName: food.name, servingLabel: food.servingLabel, quantity: servings,
-            kcal: m.kcal, proteinG: m.protein, carbG: m.carb, fatG: m.fat))
+            kcal: m.kcal, proteinG: m.protein, carbG: m.carb, fatG: m.fat,
+            loggedAt: nav.isToday ? Date() : nav.selectedDay))
     }
 }

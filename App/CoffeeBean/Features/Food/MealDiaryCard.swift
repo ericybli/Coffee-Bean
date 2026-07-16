@@ -3,6 +3,7 @@ import SwiftUI
 /// Five expandable meal slots with per-entry delete and a per-slot add button.
 struct MealDiaryCard: View {
     let entriesBySlot: [MealSlot: [FoodLogEntry]]
+    var allowAdd: Bool = true
     let onAdd: (MealSlot) -> Void
     let onDelete: (FoodLogEntry) -> Void
 
@@ -49,15 +50,17 @@ struct MealDiaryCard: View {
             }
             .buttonStyle(.plain)
 
-            Button { onAdd(slot) } label: {
-                Image(systemName: "plus").font(.subheadline).foregroundStyle(Theme.accent)
-                    .frame(width: 30, height: 30)
-                    .background(Theme.accent.opacity(0.15), in: Circle())
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+            if allowAdd {
+                Button { onAdd(slot) } label: {
+                    Image(systemName: "plus").font(.subheadline).foregroundStyle(Theme.accent)
+                        .frame(width: 30, height: 30)
+                        .background(Theme.accent.opacity(0.15), in: Circle())
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Add food to \(slot.title)")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Add food to \(slot.title)")
         }
         .padding(.vertical, 6)
     }

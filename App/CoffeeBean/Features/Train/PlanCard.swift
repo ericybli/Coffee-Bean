@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// Today's routine + chips to reassign the day.
+/// The selected day's routine + chips to reassign it.
 struct PlanCard: View {
     let routine: Routine
-    let hasLoggedSets: Bool
+    let sessionLabel: String           // "Today's session" / "Planned session" / "Logged session"
     let onReassign: (Routine) -> Void
 
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
-                Text(hasLoggedSets ? "Logged session" : "Today's session")
+                Text(sessionLabel)
                     .font(.caption).foregroundStyle(Theme.textSecondary)
                 Text(routine.dayTitle)
                     .font(.title3).bold().foregroundStyle(Theme.textPrimary)
