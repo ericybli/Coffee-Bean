@@ -96,4 +96,44 @@ enum SampleData {
         if let f = food("Banana") { out.append(entry(f, 1, .snacks, 16)) }
         return out
     }
+
+    // MARK: Train
+
+    /// A few cardio days ending with a 20-min run today.
+    static func cardioSessions() -> [CardioSession] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        func day(_ back: Int) -> Date { cal.date(byAdding: .day, value: -back, to: today)! }
+        return [
+            CardioSession(day: day(6), typeRaw: CardioType.inclineWalk.rawValue, minutes: 30),
+            CardioSession(day: day(4), typeRaw: CardioType.row.rawValue, minutes: 25),
+            CardioSession(day: day(2), typeRaw: CardioType.bike.rawValue, minutes: 15),
+            CardioSession(day: day(0), typeRaw: CardioType.run.rawValue, minutes: 20),
+        ]
+    }
+
+    /// Today's session (3 exercises × 3 sets of today's default routine) plus the same
+    /// session at -7/-14/-21 days with slightly lower loads, so "Previous" comparisons
+    /// and the same-routine volume chart populate.
+    static func workoutSets() -> [WorkoutSet] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let routine = Routine.defaultFor(weekday: cal.component(.weekday, from: today))
+        let exercises = Array((routine == .rest ? Routine.chest : routine).defaultExercises.prefix(3))
+
+        var out: [WorkoutSet] = []
+        for (back, drop) in [(21, 3), (14, 2), (7, 1), (0, 0)] {
+            let day = cal.date(byAdding: .day, value: -back, to: today)!
+            for (order, ex) in exercises.enumerated() {
+                let weight = max(2.5, ex.defaultWeightKg - Double(drop) * 2.5)
+                for setIndex in 0..<3 {
+                    out.append(WorkoutSet(day: day, exerciseName: ex.name,
+                                          muscleGroupRaw: ex.group.rawValue,
+                                          exerciseOrder: order, setIndex: setIndex,
+                                          weightKg: weight, reps: 8))
+                }
+            }
+        }
+        return out
+    }
 }

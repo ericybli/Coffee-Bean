@@ -12,6 +12,7 @@ struct CoffeeBeanApp: App {
             WeightEntry.self, BodyScan.self, Profile.self,
             DrinkPreset.self, DrinkLog.self,
             Food.self, FoodLogEntry.self,
+            CardioSession.self, WorkoutSet.self, DayPlan.self,
         ])
     }
 }

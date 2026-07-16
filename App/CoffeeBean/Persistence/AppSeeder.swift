@@ -32,5 +32,11 @@ enum AppSeeder {
         if isEmpty(FoodLogEntry.self) {
             for e in SampleData.foodLogEntries(from: foods) { context.insert(e) }
         }
+        if isEmpty(CardioSession.self) {
+            for c in SampleData.cardioSessions() { context.insert(c) }
+        }
+        if isEmpty(WorkoutSet.self) {
+            for s in SampleData.workoutSets() { context.insert(s) }
+        }
     }
 }
