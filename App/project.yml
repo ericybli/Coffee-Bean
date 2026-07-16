@@ -1,0 +1,45 @@
+name: CoffeeBean
+options:
+  bundleIdPrefix: com.month2month
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+packages:
+  CoffeeBeanCore:
+    path: ..
+settings:
+  base:
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    SWIFT_VERSION: "5.0"
+targets:
+  CoffeeBean:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: CoffeeBean
+    dependencies:
+      - package: CoffeeBeanCore
+        product: CoffeeBeanCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.month2month.coffeebean
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: "YES"
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        INFOPLIST_KEY_NSHealthShareUsageDescription: "Coffee Bean reads your active energy and body metrics to estimate your energy balance."
+        INFOPLIST_KEY_NSHealthUpdateUsageDescription: "Coffee Bean saves your meals, water, weight, and body composition to Apple Health."
+        INFOPLIST_KEY_NSCameraUsageDescription: "Scan product barcodes to look up nutrition."
+schemes:
+  CoffeeBean:
+    build:
+      targets:
+        CoffeeBean: all
+    run:
+      config: Debug
+    test:
+      config: Debug
