@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct CoffeeBeanApp: App {
@@ -7,5 +8,6 @@ struct CoffeeBeanApp: App {
             RootTabView()
                 .preferredColorScheme(.dark)
         }
+        .modelContainer(for: [WeightEntry.self, BodyScan.self, Profile.self])
     }
 }
