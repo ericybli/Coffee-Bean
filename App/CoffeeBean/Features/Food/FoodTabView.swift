@@ -7,32 +7,42 @@ struct FoodTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \FoodLogEntry.loggedAt) private var entries: [FoodLogEntry]
     @Query private var foods: [Food]
-    @Query private var scans: [BodyScan]
+    @Query(sort: \BodyScan.date, order: .reverse) private var scans: [BodyScan]
 
     @State private var addSlot: MealSlot?
 
     private var todayEntries: [FoodLogEntry] {
         entries.filter { Calendar.current.isDateInToday($0.day) }
     }
-    private var rmr: Double { scans.first(where: { $0.isRMRAuthoritative })?.rmrKcal ?? 1600 }
-    private var targets: NutritionTargets { NutritionTargets(rmr: rmr) }
-    private var consumedKcal: Double { todayEntries.reduce(0) { $0 + $1.kcal } }
-    private var consumedMacros: Macros {
-        Macros(proteinG: todayEntries.reduce(0) { $0 + $1.proteinG },
-               carbG: todayEntries.reduce(0) { $0 + $1.carbG },
-               fatG: todayEntries.reduce(0) { $0 + $1.fatG })
-    }
-    private var entriesBySlot: [MealSlot: [FoodLogEntry]] {
-        Dictionary(grouping: todayEntries) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
+
+    /// RMR by spec §5.1 priority: latest authoritative DEXA RMR → Katch-McArdle from the latest
+    /// scan with lean mass → 1600 fallback (Mifflin needs sex/age/weight the v1 Profile lacks).
+    private var rmr: Double {
+        if let measured = scans.first(where: { $0.isRMRAuthoritative && $0.rmrKcal != nil })?.rmrKcal {
+            return measured
+        }
+        if let lean = scans.first(where: { $0.leanMassKg != nil })?.leanMassKg {
+            return BMR.katchMcArdle(leanMassKg: lean)
+        }
+        return 1600
     }
 
     var body: some View {
-        ScreenScaffold(title: "Food") {
+        let today = todayEntries
+        let consumed = today.reduce(0) { $0 + $1.kcal }
+        let macros = Macros(
+            proteinG: today.reduce(0) { $0 + $1.proteinG },
+            carbG: today.reduce(0) { $0 + $1.carbG },
+            fatG: today.reduce(0) { $0 + $1.fatG })
+        let bySlot = Dictionary(grouping: today) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
+        let targets = NutritionTargets(rmr: rmr)
+
+        return ScreenScaffold(title: "Food") {
             ScrollView {
                 VStack(spacing: 16) {
-                    CaloriesCard(consumed: consumedKcal, target: targets.calorieTarget, tdee: targets.tdee)
-                    MacrosCard(consumed: consumedMacros, target: targets.macroTargets)
-                    MealDiaryCard(entriesBySlot: entriesBySlot,
+                    CaloriesCard(consumed: consumed, target: targets.calorieTarget, tdee: targets.tdee)
+                    MacrosCard(consumed: macros, target: targets.macroTargets)
+                    MealDiaryCard(entriesBySlot: bySlot,
                                   onAdd: { addSlot = $0 },
                                   onDelete: { context.delete($0) })
                 }
@@ -44,24 +54,14 @@ struct FoodTabView: View {
                 log(food, servings: servings, slot: slot)
             }
         }
-        .onAppear(perform: bootstrap)
     }
 
     private func log(_ food: Food, servings: Double, slot: MealSlot) {
-        let t = food.totals(servings: servings)
+        let m = food.totals(servings: servings)
         food.lastUsedAt = Date()
         context.insert(FoodLogEntry(
             day: Calendar.current.startOfDay(for: Date()), mealSlotRaw: slot.rawValue,
             foodID: food.id, foodName: food.name, servingLabel: food.servingLabel, quantity: servings,
-            kcal: t.kcal, proteinG: t.protein, carbG: t.carb, fatG: t.fat))
-    }
-
-    private func bootstrap() {
-        guard foods.isEmpty else { return }
-        let seeded = SampleData.libraryFoods()
-        for f in seeded { context.insert(f) }
-        if ProcessInfo.processInfo.environment["CB_SEED"] == "1" {
-            for e in SampleData.foodLogEntries(from: seeded) { context.insert(e) }
-        }
+            kcal: m.kcal, proteinG: m.protein, carbG: m.carb, fatG: m.fat))
     }
 }

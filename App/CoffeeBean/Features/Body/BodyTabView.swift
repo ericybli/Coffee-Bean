@@ -44,7 +44,6 @@ struct BodyTabView: View {
         .sheet(isPresented: $showAddDEXA) {
             AddDEXASheet { scan in addDEXA(scan) }
         }
-        .onAppear(perform: bootstrap)
     }
 
     // MARK: - Cards
@@ -160,13 +159,5 @@ struct BodyTabView: View {
             for s in scans { s.isRMRAuthoritative = false }
         }
         context.insert(scan)
-    }
-
-    private func bootstrap() {
-        if profiles.isEmpty { context.insert(Profile()) }
-        if weights.isEmpty, ProcessInfo.processInfo.environment["CB_SEED"] == "1" {
-            for e in SampleData.weightEntries() { context.insert(e) }
-            context.insert(SampleData.dexaScan())
-        }
     }
 }

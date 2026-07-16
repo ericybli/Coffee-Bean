@@ -52,15 +52,24 @@ struct AddFoodSheet: View {
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
             .padding()
 
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(filtered) { food in
-                        Button { selected = food; servings = 1 } label: { foodRow(food) }
-                            .buttonStyle(.plain)
-                        Divider().overlay(Theme.textSecondary.opacity(0.1))
+            if filtered.isEmpty {
+                ContentUnavailableView(
+                    query.isEmpty ? "No foods yet" : "No results",
+                    systemImage: "magnifyingglass",
+                    description: Text(query.isEmpty ? "Your library is empty." : "No foods match “\(query)”.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(filtered) { food in
+                            Button { selected = food; servings = 1 } label: { foodRow(food) }
+                                .buttonStyle(.plain)
+                            Divider().overlay(Theme.textSecondary.opacity(0.1))
+                        }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
         }
     }
@@ -69,7 +78,7 @@ struct AddFoodSheet: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(food.name).foregroundStyle(Theme.textPrimary)
-                Text("\(food.servingLabel) · \(Int(food.totals(servings: 1).kcal)) cal")
+                Text("\(food.servingLabel) · \(food.totals(servings: 1).kcal.grouped) cal")
                     .font(.caption).foregroundStyle(Theme.textSecondary)
             }
             Spacer()
@@ -85,19 +94,19 @@ struct AddFoodSheet: View {
         let t = food.totals(servings: servings)
         return VStack(spacing: 20) {
             Text(food.name).font(.headline).foregroundStyle(Theme.textPrimary)
-            Text("\(Int(t.kcal)) cal")
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+            Text("\(t.kcal.grouped) cal")
+                .font(.system(size: 40, weight: .bold, design: .rounded)).monospacedDigit()
                 .foregroundStyle(Theme.accent)
             Text("P \(Int(t.protein))g · C \(Int(t.carb))g · F \(Int(t.fat))g")
                 .font(.caption).foregroundStyle(Theme.textSecondary)
             HStack(spacing: 24) {
-                stepButton("minus") { servings = max(0.5, servings - 0.5) }
+                stepButton("minus", "Decrease servings") { servings = max(0.5, servings - 0.5) }
                 VStack(spacing: 2) {
                     Text(servingsText).font(.title3).bold().foregroundStyle(Theme.textPrimary)
                     Text("× \(food.servingLabel)").font(.caption).foregroundStyle(Theme.textSecondary)
                 }
                 .frame(minWidth: 90)
-                stepButton("plus") { servings = min(20, servings + 0.5) }
+                stepButton("plus", "Increase servings") { servings = min(20, servings + 0.5) }
             }
         }
         .padding()
@@ -107,10 +116,11 @@ struct AddFoodSheet: View {
         servings == servings.rounded() ? String(Int(servings)) : String(format: "%.1f", servings)
     }
 
-    private func stepButton(_ symbol: String, _ action: @escaping () -> Void) -> some View {
+    private func stepButton(_ symbol: String, _ label: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol).font(.title2).frame(width: 54, height: 54)
                 .background(Theme.card, in: Circle()).foregroundStyle(Theme.textPrimary)
         }
+        .accessibilityLabel(label)
     }
 }

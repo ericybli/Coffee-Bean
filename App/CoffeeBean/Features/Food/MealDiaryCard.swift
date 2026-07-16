@@ -40,7 +40,8 @@ struct MealDiaryCard: View {
                     }
                     Spacer()
                     if !entries.isEmpty {
-                        Text("\(Int(kcal)) cal").font(.caption).foregroundStyle(Theme.textSecondary)
+                        Text("\(kcal.grouped) cal").font(.caption).monospacedDigit()
+                            .foregroundStyle(Theme.textSecondary)
                         Image(systemName: expanded.contains(slot) ? "chevron.up" : "chevron.down")
                             .font(.caption2).foregroundStyle(Theme.textSecondary)
                     }
@@ -52,10 +53,13 @@ struct MealDiaryCard: View {
                 Image(systemName: "plus").font(.subheadline).foregroundStyle(Theme.accent)
                     .frame(width: 30, height: 30)
                     .background(Theme.accent.opacity(0.15), in: Circle())
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Add food to \(slot.title)")
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 6)
     }
 
     private func entryRow(_ entry: FoodLogEntry) -> some View {
@@ -65,11 +69,17 @@ struct MealDiaryCard: View {
                 Text(servingText(entry)).font(.caption2).foregroundStyle(Theme.textSecondary)
             }
             Spacer()
-            Text("\(Int(entry.kcal)) cal").font(.caption2).foregroundStyle(Theme.textSecondary)
-            Button { onDelete(entry) } label: { Image(systemName: "xmark").font(.caption2) }
-                .buttonStyle(.plain).foregroundStyle(Theme.negative)
+            Text("\(entry.kcal.grouped) cal").font(.caption2).monospacedDigit()
+                .foregroundStyle(Theme.textSecondary)
+            Button { onDelete(entry) } label: {
+                Image(systemName: "xmark").font(.caption2)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain).foregroundStyle(Theme.negative)
+            .accessibilityLabel("Delete \(entry.foodName)")
         }
-        .padding(.leading, 12).padding(.vertical, 5)
+        .padding(.leading, 12)
     }
 
     private func servingText(_ e: FoodLogEntry) -> String {

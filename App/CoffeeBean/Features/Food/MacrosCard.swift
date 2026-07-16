@@ -18,9 +18,12 @@ struct MacrosCard: View {
     private func column(_ name: String, _ have: Double, _ goal: Double, _ color: Color) -> some View {
         VStack(spacing: 6) {
             Text(name).font(.subheadline).bold().foregroundStyle(Theme.textPrimary)
-            Text("\(Int(have)) g / \(Int(goal))").font(.caption).foregroundStyle(Theme.textSecondary)
+            Text("\(have.grouped) g / \(goal.grouped)")
+                .font(.caption).monospacedDigit().foregroundStyle(Theme.textSecondary)
             ProgressBar(fraction: goal > 0 ? have / goal : 0, color: color, height: 7)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(name) \(Int(have)) of \(Int(goal)) grams")
     }
 }

@@ -14,23 +14,25 @@ struct CaloriesCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Calories").font(.headline).foregroundStyle(Theme.textPrimary)
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(Int(consumed))")
+                    Text(consumed.grouped)
                         .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
                         .foregroundStyle(Theme.textPrimary)
-                    Text("/ \(Int(target)) cal").foregroundStyle(Theme.textSecondary)
+                    Text("/ \(target.grouped) cal").foregroundStyle(Theme.textSecondary)
                     Spacer()
-                    Text(remaining >= 0 ? "\(Int(remaining)) left" : "\(Int(-remaining)) over")
-                        .font(.subheadline)
+                    Text(remaining >= 0 ? "\(remaining.grouped) left" : "\((-remaining).grouped) over")
+                        .font(.subheadline).monospacedDigit()
                         .foregroundStyle(remaining >= 0 ? Theme.textSecondary : Theme.negative)
                 }
                 ProgressBar(fraction: fraction, color: Theme.accent)
                 Text(caption).font(.caption).foregroundStyle(Theme.textSecondary)
             }
+            .accessibilityElement(children: .combine)
         }
     }
 
     private var caption: String {
-        let s = surplus >= 0 ? "+\(Int(surplus)) kcal surplus" : "\(Int(surplus)) kcal deficit"
-        return "TDEE \(Int(tdee)) (est.) · \(s)"
+        let s = surplus >= 0 ? "+\(surplus.grouped) kcal surplus" : "\((-surplus).grouped) kcal deficit"
+        return "TDEE \(tdee.grouped) (est.) · \(s)"
     }
 }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A thin rounded progress bar.
+/// A thin rounded progress bar. Decorative — the surrounding text carries the value for VoiceOver.
 struct ProgressBar: View {
     let fraction: Double
     let color: Color
@@ -15,5 +15,6 @@ struct ProgressBar: View {
             }
         }
         .frame(height: height)
+        .accessibilityHidden(true)
     }
 }

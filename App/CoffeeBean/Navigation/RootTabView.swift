@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 
 /// The v1 information architecture: Food (home) · Water · Body · Train.
 struct RootTabView: View {
     enum Tab: Hashable { case food, water, body, train }
 
+    @Environment(\.modelContext) private var context
     @State private var selection: Tab = RootTabView.initialTab()
 
     var body: some View {
@@ -22,6 +24,7 @@ struct RootTabView: View {
                 .tag(Tab.train)
         }
         .tint(Theme.accent)
+        .onAppear { AppSeeder.seedIfNeeded(context) }
     }
 
     /// Allows a screenshot/debug launch to open a specific tab via the CB_TAB env var.

@@ -44,7 +44,6 @@ struct WaterTabView: View {
             }
         }
         .sheet(isPresented: $showEditPresets) { EditPresetsSheet(presets: presets) }
-        .onAppear(perform: bootstrap)
     }
 
     // MARK: - Tiles
@@ -107,14 +106,5 @@ struct WaterTabView: View {
     private func addFromPreset(_ preset: DrinkPreset) {
         context.insert(DrinkLog(timestamp: Date(), volumeMl: preset.volumeMl,
                                 drinkTypeRaw: preset.drinkTypeRaw, name: preset.label))
-    }
-
-    private func bootstrap() {
-        if presets.isEmpty {
-            for p in SampleData.defaultDrinkPresets() { context.insert(p) }
-        }
-        if allLogs.isEmpty, ProcessInfo.processInfo.environment["CB_SEED"] == "1" {
-            for l in SampleData.drinkLogs() { context.insert(l) }
-        }
     }
 }
