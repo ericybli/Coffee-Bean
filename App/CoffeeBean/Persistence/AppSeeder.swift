@@ -30,6 +30,9 @@ enum AppSeeder {
         if isEmpty(WeightEntry.self) {
             for e in SampleData.weightEntries() { context.insert(e) }
         }
+        if isEmpty(WaistEntry.self) {
+            for e in SampleData.waistEntries() { context.insert(e) }
+        }
         if isEmpty(BodyScan.self) { context.insert(SampleData.dexaScan()) }
         if isEmpty(DrinkLog.self) {
             for l in SampleData.drinkLogs() { context.insert(l) }

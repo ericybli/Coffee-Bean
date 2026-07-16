@@ -25,6 +25,20 @@ enum SampleData {
                         fatMassKg: 12.6, rmrKcal: 1720, isRMRAuthoritative: true)
     }
 
+    /// ~3 weeks of waist measurements holding roughly flat during the bulk.
+    static func waistEntries() -> [WaistEntry] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let series: [Double] = [
+            82.0, 82.2, 81.9, 82.1, 81.8, 82.0, 81.9, 81.7, 82.0, 81.8, 81.9,
+            81.6, 81.8, 81.7, 81.9, 81.6, 81.7, 81.5, 81.7, 81.6, 81.6,
+        ]
+        return series.enumerated().map { i, cm in
+            let d = cal.date(byAdding: .day, value: -(series.count - 1 - i), to: today)!
+            return WaistEntry(date: d, waistCm: cm)
+        }
+    }
+
     // MARK: Water
 
     /// Seeded on first launch so the water tracker is usable out of the box.

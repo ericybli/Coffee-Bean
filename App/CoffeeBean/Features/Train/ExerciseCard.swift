@@ -1,16 +1,37 @@
 import SwiftUI
+import CoffeeBeanCore
 
-/// One exercise in today's session: last-time comparison + SET | KG | REPS rows with steppers.
+/// One exercise in the day's session: last-time comparison + SET | KG/LB | REPS rows with
+/// steppers. Weights are stored in kg; imperial mode displays lb (nearest 0.5) and steps
+/// ±5 lb, converting back to canonical kg.
 struct ExerciseCard: View {
     let name: String
-    let sets: [WorkoutSet]             // today's sets for this exercise, ordered by setIndex
+    let sets: [WorkoutSet]             // the day's sets for this exercise, ordered by setIndex
     let previous: [WorkoutSet]         // last earlier day's sets for this exercise (may be empty)
+    var system: UnitSystem = .metric
     let onAddSet: () -> Void
     let onDeleteSet: (WorkoutSet) -> Void
     let onRemoveExercise: () -> Void
 
+    private static let kgPerLb = 0.45359237
+    private var unitLabel: String { system == .metric ? "kg" : "lb" }
+
     private var volume: Double { sets.reduce(0) { $0 + $1.volumeKg } }
     private var previousVolume: Double { previous.reduce(0) { $0 + $1.volumeKg } }
+
+    /// Displayed weight for a canonical kg value (lb snapped to nearest 0.5 in imperial).
+    private func displayWeight(_ kg: Double) -> Double {
+        system == .metric ? kg : (kg / Self.kgPerLb * 2).rounded() / 2
+    }
+
+    /// Step a canonical kg weight by ±2.5 kg (metric) or ±5 lb (imperial, snapped).
+    private func stepped(_ kg: Double, up: Bool) -> Double {
+        if system == .metric {
+            return max(0, min(500, kg + (up ? 2.5 : -2.5)))
+        }
+        let lb = displayWeight(kg) + (up ? 5 : -5)
+        return max(0, min(1100, lb)) * Self.kgPerLb
+    }
 
     var body: some View {
         Card {
@@ -29,11 +50,12 @@ struct ExerciseCard: View {
                 if let first = previous.first {
                     let delta = volume - previousVolume
                     HStack {
-                        Text("Last time \(first.weightKg.cleanKg) kg × \(first.reps) × \(previous.count)")
+                        Text("Last time \(displayWeight(first.weightKg).cleanKg) \(unitLabel) × \(first.reps) × \(previous.count)")
                             .font(.caption).foregroundStyle(Theme.textSecondary)
                         Spacer()
                         if previousVolume > 0 {
-                            Text(String(format: "%+.0f kg vol", delta))
+                            Text(String(format: "%+.0f %@ vol",
+                                        system == .metric ? delta : delta / Self.kgPerLb, unitLabel))
                                 .font(.caption).monospacedDigit()
                                 .foregroundStyle(delta >= 0 ? Theme.positive : Theme.negative)
                         }
@@ -43,7 +65,7 @@ struct ExerciseCard: View {
                 HStack {
                     Text("SET").frame(width: 40, alignment: .leading)
                     Spacer()
-                    Text("KG").frame(width: 110)
+                    Text(unitLabel.uppercased()).frame(width: 110)
                     Text("REPS").frame(width: 96)
                     Color.clear.frame(width: 32)
                 }
@@ -64,10 +86,10 @@ struct ExerciseCard: View {
             Text("\(set.setIndex + 1)").font(.subheadline).monospacedDigit()
                 .foregroundStyle(Theme.textSecondary).frame(width: 40, alignment: .leading)
             Spacer()
-            stepGroup(value: set.weightKg.cleanKg, width: 110,
+            stepGroup(value: displayWeight(set.weightKg).cleanKg, width: 110,
                       minusLabel: "Decrease weight", plusLabel: "Increase weight",
-                      minus: { set.weightKg = max(0, set.weightKg - 2.5) },
-                      plus: { set.weightKg = min(500, set.weightKg + 2.5) })
+                      minus: { set.weightKg = stepped(set.weightKg, up: false) },
+                      plus: { set.weightKg = stepped(set.weightKg, up: true) })
             stepGroup(value: "\(set.reps)", width: 96,
                       minusLabel: "Decrease reps", plusLabel: "Increase reps",
                       minus: { set.reps = max(1, set.reps - 1) },

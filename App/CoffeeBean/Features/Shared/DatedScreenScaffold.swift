@@ -12,7 +12,8 @@ struct DatedScreenScaffold<Content: View>: View {
     @Query private var foodEntries: [FoodLogEntry]
     @Query private var drinkLogs: [DrinkLog]
 
-    @State private var showCalendar = false
+    @State private var showCalendar =
+        ProcessInfo.processInfo.environment["CB_OPEN_CALENDAR"] == "1"
     @State private var showSettings =
         ProcessInfo.processInfo.environment["CB_OPEN_SETTINGS"] == "1"
 
@@ -61,26 +62,9 @@ struct DatedScreenScaffold<Content: View>: View {
     }
 
     private var calendarSheet: some View {
-        VStack(spacing: 12) {
-            DatePicker(
-                "Date",
-                selection: Binding(
-                    get: { nav.selectedDay },
-                    set: { nav.select($0); showCalendar = false }),
-                in: Date.distantPast...nav.maxDay,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.graphical)
-            .tint(Theme.accent)
-            .padding(.horizontal)
-
-            Button("Back to today") {
-                nav.backToToday()
-                showCalendar = false
-            }
-            .tint(Theme.accent)
+        CalendarMonthView(nav: nav, loggedDays: loggedDays) { _ in
+            showCalendar = false
         }
-        .padding(.vertical)
         .presentationDetents([.medium])
         .presentationBackground(Theme.sheet)
     }

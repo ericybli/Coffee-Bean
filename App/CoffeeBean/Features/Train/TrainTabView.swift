@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoffeeBeanCore
 
 /// Train: cardio first, then the 5-day weight split (plan, volume, exercise cards).
 /// Scoped to the shared selected day — past days backfill; future days show the plan.
@@ -9,12 +10,14 @@ struct TrainTabView: View {
     @Query(sort: \CardioSession.loggedAt) private var cardio: [CardioSession]
     @Query(sort: \WorkoutSet.loggedAt) private var allSets: [WorkoutSet]
     @Query private var plans: [DayPlan]
+    @Query private var profiles: [Profile]
 
     @State private var showAddCardio = false
     @State private var showAddExercise = false
 
     private var cal: Calendar { Calendar.current }
     private var selectedDay: Date { nav.selectedDay }
+    private var system: UnitSystem { profiles.first?.unitSystem ?? .metric }
 
     var body: some View {
         let routine = routineFor(day: selectedDay)
@@ -47,12 +50,13 @@ struct TrainTabView: View {
                         restCard
                     } else {
                         VolumeCard(routine: routine, todayVolumeKg: dayVolume,
-                                   history: volumeHistory(routine: routine))
+                                   history: volumeHistory(routine: routine), system: system)
                         ForEach(exercises, id: \.name) { group in
                             ExerciseCard(
                                 name: group.name,
                                 sets: group.sets,
                                 previous: previousSets(exercise: group.name),
+                                system: system,
                                 onAddSet: { addSet(to: group) },
                                 onDeleteSet: { context.delete($0) },
                                 onRemoveExercise: { group.sets.forEach { context.delete($0) } })

@@ -28,4 +28,13 @@ enum Units {
         let fi = Quantity(canonicalValue: cm, kind: .height).heightFeetInches()
         return "\(fi.feet) ft \(fi.inches) in"
     }
+
+    /// Plain length (waist etc.): cm ⇄ decimal inches.
+    static func lengthValue(_ cm: Double, _ s: UnitSystem) -> Double {
+        Quantity(canonicalValue: cm, kind: .height).value(in: s)
+    }
+
+    static func length(_ cm: Double, _ s: UnitSystem) -> String {
+        String(format: "%.1f %@", lengthValue(cm, s), s == .metric ? "cm" : "in")
+    }
 }

@@ -41,7 +41,7 @@ private struct SettingsForm: View {
                     Text("Imperial").tag("imperial")
                 }
                 .pickerStyle(.segmented)
-                Text("Weight, water, and height switch units. Barbell weights stay in kg for now.")
+                Text("All displays switch units — data is always stored metric.")
                     .font(.caption2).foregroundStyle(Theme.textSecondary)
             }
 

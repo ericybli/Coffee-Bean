@@ -17,6 +17,7 @@ struct AddFoodSheet: View {
     @State private var query = ""
     @State private var selected: Food?
     @State private var servings: Double = 1
+    @State private var addedCount = 0
 
     // Barcode lookup
     @State private var barcode = ""
@@ -87,14 +88,25 @@ struct AddFoodSheet: View {
         ToolbarItem(placement: .cancellationAction) {
             Button(canGoBack ? "Back" : "Close") { goBack() }
         }
+        ToolbarItem(placement: .confirmationAction) { trailingAction }
+    }
+
+    @ViewBuilder private var trailingAction: some View {
         if let food = selected {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Add") { onLog(food, servings); dismiss() }.bold()
+            // Log and return to the list so several items can be added in one session.
+            Button("Add") {
+                onLog(food, servings)
+                addedCount += 1
+                selected = nil
             }
+            .bold()
         } else if screen == .create {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { saveNewFood() }.bold().disabled(newName.isEmpty)
-            }
+            Button("Save") { saveNewFood() }
+                .bold()
+                .disabled(newName.isEmpty)
+        } else if screen == .browse && addedCount > 0 {
+            Button("Done (\(addedCount) added)") { dismiss() }
+                .bold()
         }
     }
 
@@ -134,8 +146,7 @@ struct AddFoodSheet: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(filtered) { food in
-                            Button { selected = food; servings = 1 } label: { foodRow(food) }
-                                .buttonStyle(.plain)
+                            foodRow(food)
                             Divider().overlay(Theme.textSecondary.opacity(0.1))
                         }
                     }
@@ -143,6 +154,13 @@ struct AddFoodSheet: View {
                 }
             }
         }
+    }
+
+    /// The ＋ logs one default serving instantly; tapping the rest of the row
+    /// opens the serving picker.
+    private func instantAdd(_ food: Food) {
+        onLog(food, 1)
+        addedCount += 1
     }
 
     private func actionChip(_ label: String, _ icon: String, _ action: @escaping () -> Void) -> some View {
@@ -157,21 +175,33 @@ struct AddFoodSheet: View {
 
     private func foodRow(_ food: Food) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(food.name).foregroundStyle(Theme.textPrimary)
-                Text("\(food.servingLabel) · \(food.totals(servings: 1).kcal.grouped) cal")
-                    .font(.caption).foregroundStyle(Theme.textSecondary)
+            Button { selected = food; servings = 1 } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(food.name).foregroundStyle(Theme.textPrimary)
+                        Text("\(food.servingLabel) · \(food.totals(servings: 1).kcal.grouped) cal")
+                            .font(.caption).foregroundStyle(Theme.textSecondary)
+                    }
+                    Spacer()
+                    if food.isFavorite {
+                        Image(systemName: "star.fill").font(.caption2).foregroundStyle(Theme.accent)
+                    }
+                    if food.sourceRaw == "openFoodFacts" {
+                        Image(systemName: "barcode").font(.caption2).foregroundStyle(Theme.textSecondary)
+                    }
+                }
+                .contentShape(Rectangle())
             }
-            Spacer()
-            if food.isFavorite {
-                Image(systemName: "star.fill").font(.caption2).foregroundStyle(Theme.accent)
+            .buttonStyle(.plain)
+
+            Button { instantAdd(food) } label: {
+                Image(systemName: "plus.circle.fill").font(.title3).foregroundStyle(Theme.accent)
+                    .frame(width: 44, height: 44).contentShape(Rectangle())
             }
-            if food.sourceRaw == "openFoodFacts" {
-                Image(systemName: "barcode").font(.caption2).foregroundStyle(Theme.textSecondary)
-            }
-            Image(systemName: "plus.circle.fill").foregroundStyle(Theme.accent)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Add one \(food.servingLabel) of \(food.name)")
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 6)
     }
 
     // MARK: Barcode
