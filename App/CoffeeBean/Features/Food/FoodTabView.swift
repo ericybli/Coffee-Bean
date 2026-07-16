@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import CoffeeBeanCore
 
-/// Food (home): calories + macros vs targets, and the meal diary.
+/// Food (home): calories + macros vs targets, the meal diary, and quick add.
 struct FoodTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \FoodLogEntry.loggedAt) private var entries: [FoodLogEntry]
@@ -10,6 +10,8 @@ struct FoodTabView: View {
     @Query(sort: \BodyScan.date, order: .reverse) private var scans: [BodyScan]
 
     @State private var addSlot: MealSlot?
+    @State private var pendingScan = false
+    @State private var didAutoOpen = false
 
     private var todayEntries: [FoodLogEntry] {
         entries.filter { Calendar.current.isDateInToday($0.day) }
@@ -43,16 +45,49 @@ struct FoodTabView: View {
                     CaloriesCard(consumed: consumed, target: targets.calorieTarget, tdee: targets.tdee)
                     MacrosCard(consumed: macros, target: targets.macroTargets)
                     MealDiaryCard(entriesBySlot: bySlot,
-                                  onAdd: { addSlot = $0 },
+                                  onAdd: { open($0, scan: false) },
                                   onDelete: { context.delete($0) })
+                    ctaRow
                 }
                 .padding(20)
             }
         }
-        .sheet(item: $addSlot) { slot in
-            AddFoodSheet(slot: slot, foods: foods) { food, servings in
+        .sheet(item: $addSlot, onDismiss: { pendingScan = false }) { slot in
+            AddFoodSheet(slot: slot, foods: foods, initialScreen: pendingScan ? .barcode : .browse) { food, servings in
                 log(food, servings: servings, slot: slot)
             }
+        }
+        .onAppear {
+            guard !didAutoOpen, ProcessInfo.processInfo.environment["CB_OPEN_ADD"] == "1" else { return }
+            didAutoOpen = true
+            open(defaultSlot(), scan: ProcessInfo.processInfo.environment["CB_SCAN"] != nil)
+        }
+    }
+
+    private var ctaRow: some View {
+        HStack(spacing: 12) {
+            Button { open(defaultSlot(), scan: true) } label: {
+                Label("Scan to log", systemImage: "barcode.viewfinder").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent).tint(Theme.accent)
+            Button { open(defaultSlot(), scan: false) } label: {
+                Label("Search", systemImage: "magnifyingglass").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered).tint(Theme.accent)
+        }
+    }
+
+    private func open(_ slot: MealSlot, scan: Bool) {
+        pendingScan = scan
+        addSlot = slot
+    }
+
+    private func defaultSlot() -> MealSlot {
+        switch Calendar.current.component(.hour, from: Date()) {
+        case ..<11: return .breakfast
+        case ..<16: return .lunch
+        case ..<21: return .dinner
+        default: return .snacks
         }
     }
 

@@ -1,15 +1,37 @@
 import SwiftUI
+import SwiftData
 
-/// Add a food to a meal slot: pick from the library (favorites/recents first), then choose servings.
+/// Add a food to a meal slot. Paths: browse the library, scan/enter a barcode
+/// (Open Food Facts lookup), or create a food manually — then choose servings.
 struct AddFoodSheet: View {
+    enum Screen { case browse, barcode, create }
+
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     let slot: MealSlot
     let foods: [Food]
+    var initialScreen: Screen = .browse
     let onLog: (Food, Double) -> Void
 
+    @State private var screen: Screen = .browse
     @State private var query = ""
     @State private var selected: Food?
     @State private var servings: Double = 1
+
+    // Barcode lookup
+    @State private var barcode = ""
+    @State private var lookingUp = false
+    @State private var lookupMessage: String?
+
+    // Manual create
+    @State private var newName = ""
+    @State private var newBrand = ""
+    @State private var newKcal: Double = 0
+    @State private var newProtein: Double = 0
+    @State private var newCarb: Double = 0
+    @State private var newFat: Double = 0
+    @State private var newServingLabel = "100 g"
+    @State private var newServingGrams: Double = 100
 
     private var filtered: [Food] {
         let base = foods.sorted {
@@ -23,27 +45,76 @@ struct AddFoodSheet: View {
         NavigationStack {
             ZStack {
                 Theme.sheet.ignoresSafeArea()
-                if let food = selected { servingPicker(food) } else { list }
+                content
             }
-            .navigationTitle(selected == nil ? "Add to \(slot.title)" : "Serving")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(selected == nil ? "Close" : "Back") {
-                        if selected == nil { dismiss() } else { selected = nil }
-                    }
-                }
-                if let food = selected {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Add") { onLog(food, servings); dismiss() }.bold()
-                    }
-                }
+            .toolbar { toolbar }
+        }
+        .onAppear {
+            screen = initialScreen
+            // DEBUG screenshot hook: auto-run a barcode lookup when CB_SCAN is set.
+            if let code = ProcessInfo.processInfo.environment["CB_SCAN"] {
+                screen = .barcode
+                barcode = code
+                Task { await lookup() }
             }
         }
     }
 
-    private var list: some View {
+    @ViewBuilder private var content: some View {
+        if let food = selected {
+            servingPicker(food)
+        } else {
+            switch screen {
+            case .browse: browse
+            case .barcode: barcodeLookup
+            case .create: createForm
+            }
+        }
+    }
+
+    private var title: String {
+        if selected != nil { return "Serving" }
+        switch screen {
+        case .browse: return "Add to \(slot.title)"
+        case .barcode: return "Scan barcode"
+        case .create: return "Create food"
+        }
+    }
+
+    @ToolbarContentBuilder private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button(canGoBack ? "Back" : "Close") { goBack() }
+        }
+        if let food = selected {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Add") { onLog(food, servings); dismiss() }.bold()
+            }
+        } else if screen == .create {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") { saveNewFood() }.bold().disabled(newName.isEmpty)
+            }
+        }
+    }
+
+    private var canGoBack: Bool { selected != nil || screen != .browse }
+    private func goBack() {
+        if selected != nil { selected = nil; lookupMessage = nil }
+        else if screen != .browse { screen = .browse }
+        else { dismiss() }
+    }
+
+    // MARK: Browse
+
+    private var browse: some View {
         VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                actionChip("Scan barcode", "barcode.viewfinder") { screen = .barcode }
+                actionChip("Create food", "square.and.pencil") { screen = .create }
+            }
+            .padding([.horizontal, .top])
+
             HStack {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.textSecondary)
                 TextField("Search foods", text: $query).foregroundStyle(Theme.textPrimary)
@@ -56,7 +127,7 @@ struct AddFoodSheet: View {
                 ContentUnavailableView(
                     query.isEmpty ? "No foods yet" : "No results",
                     systemImage: "magnifyingglass",
-                    description: Text(query.isEmpty ? "Your library is empty." : "No foods match “\(query)”.")
+                    description: Text(query.isEmpty ? "Scan or create your first food." : "No foods match “\(query)”.")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -74,6 +145,16 @@ struct AddFoodSheet: View {
         }
     }
 
+    private func actionChip(_ label: String, _ icon: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(label, systemImage: icon).font(.subheadline)
+                .frame(maxWidth: .infinity).padding(.vertical, 12)
+                .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
+                .foregroundStyle(Theme.accent)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func foodRow(_ food: Food) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -85,15 +166,113 @@ struct AddFoodSheet: View {
             if food.isFavorite {
                 Image(systemName: "star.fill").font(.caption2).foregroundStyle(Theme.accent)
             }
+            if food.sourceRaw == "openFoodFacts" {
+                Image(systemName: "barcode").font(.caption2).foregroundStyle(Theme.textSecondary)
+            }
             Image(systemName: "plus.circle.fill").foregroundStyle(Theme.accent)
         }
         .padding(.vertical, 10)
     }
 
+    // MARK: Barcode
+
+    private var barcodeLookup: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "barcode.viewfinder").font(.system(size: 44)).foregroundStyle(Theme.accent)
+            Text("On device this scans with the camera. Here, type a barcode.")
+                .font(.caption).foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center).padding(.horizontal)
+            TextField("e.g. 3017624010701", text: $barcode)
+                .keyboardType(.numberPad).multilineTextAlignment(.center)
+                .padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 12)).padding(.horizontal)
+            if lookingUp {
+                ProgressView().tint(Theme.accent)
+            } else {
+                Button { Task { await lookup() } } label: {
+                    Text("Look up").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent).tint(Theme.accent).padding(.horizontal)
+                .disabled(barcode.count < 6)
+            }
+            if let msg = lookupMessage {
+                Text(msg).font(.caption).foregroundStyle(Theme.negative)
+                Button("Create manually") { screen = .create }.foregroundStyle(Theme.accent)
+            }
+            Spacer()
+        }
+        .padding(.top, 28)
+    }
+
+    private func lookup() async {
+        lookingUp = true
+        lookupMessage = nil
+        do {
+            if let remote = try await OFFService.lookup(barcode: barcode) {
+                let food = Food.from(remote)
+                context.insert(food)
+                servings = 1
+                selected = food
+            } else {
+                lookupMessage = "Not found in Open Food Facts."
+            }
+        } catch {
+            lookupMessage = "Lookup failed — check your connection."
+        }
+        lookingUp = false
+    }
+
+    // MARK: Create
+
+    private var createForm: some View {
+        Form {
+            Section("Food") {
+                TextField("Name", text: $newName)
+                TextField("Brand (optional)", text: $newBrand)
+            }
+            Section("Per 100 g") {
+                numberRow("Calories", $newKcal, "kcal")
+                numberRow("Protein", $newProtein, "g")
+                numberRow("Carbs", $newCarb, "g")
+                numberRow("Fat", $newFat, "g")
+            }
+            Section("Serving") {
+                TextField("Label (e.g. 1 scoop)", text: $newServingLabel)
+                numberRow("Grams per serving", $newServingGrams, "g")
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Theme.sheet)
+    }
+
+    private func numberRow(_ label: String, _ value: Binding<Double>, _ unit: String) -> some View {
+        HStack {
+            Text(label).foregroundStyle(Theme.textPrimary)
+            Spacer()
+            TextField("0", value: value, format: .number)
+                .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 80)
+            Text(unit).foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private func saveNewFood() {
+        let food = Food(
+            name: newName, brand: newBrand.isEmpty ? nil : newBrand,
+            barcode: barcode.isEmpty ? nil : barcode,
+            kcalPer100g: newKcal, proteinPer100g: newProtein, carbPer100g: newCarb, fatPer100g: newFat,
+            servingLabel: newServingLabel.isEmpty ? "100 g" : newServingLabel,
+            servingGrams: max(1, newServingGrams))
+        context.insert(food)
+        servings = 1
+        selected = food
+    }
+
+    // MARK: Serving
+
     private func servingPicker(_ food: Food) -> some View {
         let t = food.totals(servings: servings)
         return VStack(spacing: 20) {
             Text(food.name).font(.headline).foregroundStyle(Theme.textPrimary)
+                .multilineTextAlignment(.center)
             Text("\(t.kcal.grouped) cal")
                 .font(.system(size: 40, weight: .bold, design: .rounded)).monospacedDigit()
                 .foregroundStyle(Theme.accent)
