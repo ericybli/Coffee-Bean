@@ -4,7 +4,7 @@ import XCTest
 final class TEFTests: XCTestCase {
     func testMacrosKcal() {
         let m = Macros(proteinG: 200, carbG: 250, fatG: 70)
-        XCTAssertEqual(m.kcal, 200*4 + 250*4 + 70*9, accuracy: 1e-6) // 800+1000+630 = 2430
+        XCTAssertEqual(m.kcal, 2430, accuracy: 1e-6) // 200*4 + 250*4 + 70*9 = 800+1000+630
     }
     func testFlatTenPercent() {
         XCTAssertEqual(TEF.value(mode: .flatTen, intakeKcal: 2500, macros: nil), 250, accuracy: 1e-6)
