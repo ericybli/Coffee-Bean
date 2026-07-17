@@ -23,7 +23,7 @@ xcodebuild -project CoffeeBean.xcodeproj -scheme CoffeeBean \
 xcrun simctl bootstatus "iPhone 16 Pro Max" -b
 xcrun simctl install "iPhone 16 Pro Max" \
   "$(xcodebuild -project CoffeeBean.xcodeproj -scheme CoffeeBean -showBuildSettings 2>/dev/null | awk -F' = ' '/ CODESIGNING_FOLDER_PATH /{print $2}')"
-xcrun simctl launch "iPhone 16 Pro Max" com.month2month.coffeebean
+xcrun simctl launch "iPhone 16 Pro Max" com.ericybli.coffeebean
 ```
 
 ## Structure

@@ -27,7 +27,7 @@ targets:
         product: CoffeeBeanCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.month2month.coffeebean
+        PRODUCT_BUNDLE_IDENTIFIER: com.ericybli.coffeebean
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: "YES"

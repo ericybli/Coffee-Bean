@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Local build artifacts (IPA output)
+dist/
+
 # Swift Package Manager
 .build/
 .swiftpm/

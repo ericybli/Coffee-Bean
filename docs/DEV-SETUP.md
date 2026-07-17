@@ -212,10 +212,70 @@ One-time setup (GUI, ~15 min):
    (e.g. `master` or `docs/health-app-spec`); Action → **Archive - iOS**;
    Post-action → **TestFlight (Internal Testing)**. Xcode Cloud manages signing
    automatically (cloud-managed certificates) and can create the App Store Connect
-   app record for `com.month2month.coffeebean` during setup.
+   app record for `com.ericybli.coffeebean` during setup.
 4. App Store Connect → TestFlight → Internal Testing group → add your (and your
    partner's) Apple IDs. Phones install via the TestFlight app.
 
 After that, every push to the watched branch = automatic cloud build → TestFlight
 update on the phones. If Xcode 16.3's workflow editor misbehaves, workflows can also
 be edited in the App Store Connect web UI (Xcode Cloud tab).
+
+> **Note:** §6–7 assume the paid account is usable for this app. It turned out the
+> paid account belongs to the company and this is a personal app → the **chosen path
+> is §8 (AltStore)**. §6–7 are kept for reference (they become relevant again if a
+> personal paid account is ever purchased — recommended long-term).
+
+---
+
+## 8. ✅ Chosen path: AltStore sideloading (free, personal Apple ID, no company account)
+
+**Why:** the paid Apple account is the company's; this is a personal health app. AltStore
+signs the app with a **free personal Apple ID** and installs it over USB/WiFi — nothing
+ever touches App Store Connect or the company account. Works with the pinned macOS 15.2
++ Xcode 16.3 (the IPA is built locally with the iOS 18.4 SDK and runs fine on iOS 26.5).
+
+### 8.1 Build the IPA (already scripted)
+```bash
+Scripts/build-ipa.sh        # → dist/CoffeeBean.ipa (unsigned; AltStore signs it)
+```
+
+### 8.2 One-time setup
+1. **Mac:** download **AltServer** from https://altstore.io → move to /Applications →
+   open (menu-bar icon appears).
+2. **iPhone:** plug in via USB-C → trust the Mac in Finder if prompted.
+3. Menu bar → AltServer icon → **Install AltStore → (your iPhone)** → sign in with a
+   **personal (free) Apple ID**. (2FA: AltServer walks you through it. If you prefer,
+   create a fresh Apple ID just for signing.)
+4. **iPhone:** Settings → General → **VPN & Device Management** → trust the developer
+   certificate; Settings → Privacy & Security → **Developer Mode → On** (restarts).
+5. AirDrop `dist/CoffeeBean.ipa` to the iPhone (save to Files), open **AltStore** on
+   the phone → **My Apps → ＋** → pick CoffeeBean.ipa → installs.
+
+### 8.3 The 7-day refresh (free-account signing expiry)
+- Keep AltServer running on the Mac. When the iPhone is on the **same WiFi**, AltStore
+  auto-refreshes signatures in the background (leave Background App Refresh on for
+  AltStore). Manual refresh: open AltStore → My Apps → Refresh.
+- If it ever fully expires, the app icon stays but won't launch — one tap of Refresh
+  (or reinstall the IPA) fixes it; **SwiftData data survives** refreshes/reinstalls of
+  the same bundle ID.
+
+### 8.4 Updating the app
+```bash
+Scripts/build-ipa.sh   # rebuild after code changes
+```
+AirDrop the new IPA → AltStore → My Apps → ＋ → install over the old one (data kept).
+
+### 8.5 Limits & caveats (honest list)
+- Free accounts: max **3 sideloaded apps** active (AltStore itself counts as one),
+  10 App-ID registrations per 7 days, signatures last 7 days.
+- The partner's iPhone repeats §8.2 with **their own** free Apple ID (or the same one).
+- **iOS 26.5 compatibility:** AltStore tracks new iOS releases closely, but if
+  Install AltStore fails on 26.5, try the newest AltServer beta or the SideStore fork.
+- **HealthKit (future):** free personal teams do support the HealthKit entitlement,
+  but AltStore's re-signing of it needs verifying when we add HealthKit. CloudKit
+  sync will NOT be possible on a free account — that feature waits for a personal
+  paid account.
+- Bundle ID is now personal: `com.ericybli.coffeebean` (changed from the company
+  domain). If the company portal ended up with a `com.ericybli.coffeebean` App ID
+  from the earlier Xcode Cloud attempt, delete it at
+  developer.apple.com → Identifiers.
