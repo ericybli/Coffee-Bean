@@ -1,8 +1,10 @@
 import SwiftUI
 import SwiftData
+import CoffeeBeanCore
 
-/// Add a food to a meal slot. Paths: browse the library, scan/enter a barcode
-/// (Open Food Facts lookup), or create a food manually — then choose servings.
+/// Add a food to a meal slot. Paths: browse the library (with online name
+/// search via Open Food Facts), scan/enter a barcode, or create a food
+/// manually — then choose servings.
 struct AddFoodSheet: View {
     enum Screen { case browse, barcode, create }
 
@@ -23,6 +25,11 @@ struct AddFoodSheet: View {
     @State private var barcode = ""
     @State private var lookingUp = false
     @State private var lookupMessage: String?
+
+    // Online name search (Open Food Facts)
+    @State private var remoteResults: [RemoteFood]?
+    @State private var searchingRemote = false
+    @State private var remoteError: String?
 
     // Manual create
     @State private var newName = ""
@@ -54,11 +61,15 @@ struct AddFoodSheet: View {
         }
         .onAppear {
             screen = initialScreen
-            // DEBUG screenshot hook: auto-run a barcode lookup when CB_SCAN is set.
+            // DEBUG screenshot hooks: CB_SCAN auto-runs a barcode lookup,
+            // CB_SEARCH auto-runs an online name search.
             if let code = ProcessInfo.processInfo.environment["CB_SCAN"] {
                 screen = .barcode
                 barcode = code
                 Task { await lookup() }
+            } else if let q = ProcessInfo.processInfo.environment["CB_SEARCH"] {
+                query = q
+                Task { await searchOnline() }
             }
         }
     }
@@ -129,17 +140,23 @@ struct AddFoodSheet: View {
 
             HStack {
                 Image(systemName: "magnifyingglass").foregroundStyle(Theme.textSecondary)
-                TextField("Search foods", text: $query).foregroundStyle(Theme.textPrimary)
+                TextField("Search foods", text: $query)
+                    .foregroundStyle(Theme.textPrimary)
+                    .submitLabel(.search)
+                    .onSubmit { Task { await searchOnline() } }
             }
             .padding(10)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 12))
             .padding()
+            .onChange(of: query) {
+                remoteResults = nil
+                remoteError = nil
+            }
 
-            if filtered.isEmpty {
+            if filtered.isEmpty && query.isEmpty {
                 ContentUnavailableView(
-                    query.isEmpty ? "No foods yet" : "No results",
-                    systemImage: "magnifyingglass",
-                    description: Text(query.isEmpty ? "Scan or create your first food." : "No foods match “\(query)”.")
+                    "No foods yet", systemImage: "magnifyingglass",
+                    description: Text("Scan, search online, or create your first food.")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -149,11 +166,108 @@ struct AddFoodSheet: View {
                             foodRow(food)
                             Divider().overlay(Theme.textSecondary.opacity(0.1))
                         }
+                        if !query.isEmpty {
+                            if filtered.isEmpty {
+                                Text("No library matches for “\(query)”.")
+                                    .font(.caption).foregroundStyle(Theme.textSecondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 10)
+                            }
+                            onlineSection
+                        }
                     }
                     .padding(.horizontal)
                 }
             }
         }
+    }
+
+    // MARK: Online name search
+
+    /// Below the library results: a search trigger, then Open Food Facts matches.
+    @ViewBuilder private var onlineSection: some View {
+        HStack {
+            Text("OPEN FOOD FACTS").font(.caption2).bold().foregroundStyle(Theme.textSecondary)
+            Spacer()
+            if searchingRemote { ProgressView().tint(Theme.accent).controlSize(.small) }
+        }
+        .padding(.top, 14).padding(.bottom, 4)
+
+        if let results = remoteResults {
+            if results.isEmpty {
+                Text("No online matches. Try another name, or create it manually.")
+                    .font(.caption).foregroundStyle(Theme.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(Array(results.enumerated()), id: \.offset) { _, r in
+                    remoteRow(r)
+                    Divider().overlay(Theme.textSecondary.opacity(0.1))
+                }
+            }
+        } else if let err = remoteError {
+            Text(err).font(.caption).foregroundStyle(Theme.negative)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+        } else if !searchingRemote {
+            Button {
+                Task { await searchOnline() }
+            } label: {
+                Label("Search online for “\(query)”", systemImage: "globe")
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 12)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain).foregroundStyle(Theme.accent)
+        }
+    }
+
+    private func remoteRow(_ r: RemoteFood) -> some View {
+        Button { selectRemote(r) } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(r.name).foregroundStyle(Theme.textPrimary).lineLimit(1)
+                    Text([r.brand, "\(r.kcalPer100g.grouped) cal / 100 g"]
+                        .compactMap { $0 }.joined(separator: " · "))
+                        .font(.caption).foregroundStyle(Theme.textSecondary).lineLimit(1)
+                }
+                Spacer()
+                Image(systemName: "square.and.arrow.down").font(.caption)
+                    .foregroundStyle(Theme.accent)
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Add \(r.name) to library")
+    }
+
+    private func searchOnline() async {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard q.count >= 2, !searchingRemote else { return }
+        searchingRemote = true
+        remoteError = nil
+        do {
+            remoteResults = try await OFFService.search(query: q)
+        } catch {
+            remoteResults = nil
+            remoteError = "Online search failed — try again in a moment."
+        }
+        searchingRemote = false
+    }
+
+    /// Save an online result into the library (reusing any food already saved
+    /// with the same barcode) and go straight to the serving picker.
+    private func selectRemote(_ r: RemoteFood) {
+        if let code = r.barcode, let existing = foods.first(where: { $0.barcode == code }) {
+            selected = existing
+        } else {
+            let food = Food.from(r)
+            context.insert(food)
+            selected = food
+        }
+        servings = 1
     }
 
     /// The ＋ logs one default serving instantly; tapping the rest of the row
@@ -202,6 +316,21 @@ struct AddFoodSheet: View {
             .accessibilityLabel("Add one \(food.servingLabel) of \(food.name)")
         }
         .padding(.vertical, 6)
+        // Long-press to manage the library. Deleting a food keeps past log
+        // entries intact — they carry their own name and nutrition copies.
+        .contextMenu {
+            Button {
+                food.isFavorite.toggle()
+            } label: {
+                Label(food.isFavorite ? "Unfavorite" : "Favorite",
+                      systemImage: food.isFavorite ? "star.slash" : "star")
+            }
+            Button(role: .destructive) {
+                context.delete(food)
+            } label: {
+                Label("Delete from library", systemImage: "trash")
+            }
+        }
     }
 
     // MARK: Barcode

@@ -3,11 +3,17 @@ import CoffeeBeanCore
 
 /// App-wide Open Food Facts client (barcode → nutrition) with the required custom User-Agent.
 enum OFFService {
+    // US mirror: same global DB for barcodes, US-scoped text search results.
     private static let client = OpenFoodFactsClient(
+        baseURL: OpenFoodFactsClient.usBaseURL,
         userAgent: "CoffeeBean/0.1 (engineering@month2month.com)")
 
     static func lookup(barcode: String) async throws -> RemoteFood? {
         try await client.lookup(barcode: barcode)
+    }
+
+    static func search(query: String) async throws -> [RemoteFood] {
+        try await client.search(query: query)
     }
 }
 
