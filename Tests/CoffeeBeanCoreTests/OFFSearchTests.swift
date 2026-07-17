@@ -15,6 +15,7 @@ final class OFFSearchTests: XCTestCase {
         XCTAssertTrue(s.contains("search_terms=peanut%20butter"))
         XCTAssertTrue(s.contains("json=1"))
         XCTAssertTrue(s.contains("page_size=20"))
+        XCTAssertTrue(s.contains("sort_by=unique_scans_n"))
         XCTAssertTrue(s.contains("fields="))
     }
 

@@ -5,6 +5,10 @@ import FoundationNetworking
 
 public struct OpenFoodFactsClient: FoodSource {
     public static let productionBaseURL = URL(string: "https://world.openfoodfacts.org")!
+    /// Country-scoped mirror: barcode lookups still hit the global DB, but
+    /// text search is limited to products sold in the US — better ranking
+    /// for a US user.
+    public static let usBaseURL = URL(string: "https://us.openfoodfacts.org")!
     public static let stagingBaseURL = URL(string: "https://world.openfoodfacts.net")!
 
     private static let fields = [
@@ -49,6 +53,8 @@ public struct OpenFoodFactsClient: FoodSource {
             URLQueryItem(name: "action", value: "process"),
             URLQueryItem(name: "json", value: "1"),
             URLQueryItem(name: "page_size", value: String(pageSize)),
+            // Most-scanned products first — surfaces common items over obscure ones.
+            URLQueryItem(name: "sort_by", value: "unique_scans_n"),
             URLQueryItem(name: "fields", value: Self.fields)
         ]
         return comps.url!
