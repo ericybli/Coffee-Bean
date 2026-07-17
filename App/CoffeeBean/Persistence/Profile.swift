@@ -22,5 +22,9 @@ final class Profile {
     var customCarbPct: Double = 50
     var customFatPct: Double = 30
 
+    // Data sources: personal USDA FoodData Central key (empty = shared DEMO_KEY,
+    // rate-limited to 30 searches/hour per IP).
+    var usdaApiKey: String = ""
+
     init() {}
 }

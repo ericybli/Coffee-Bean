@@ -17,6 +17,15 @@ enum OFFService {
     }
 }
 
+/// USDA FoodData Central — generic/unpackaged foods (per-100g authority).
+enum USDAService {
+    static func search(query: String, apiKey: String) async throws -> [RemoteFood] {
+        let key = apiKey.trimmingCharacters(in: .whitespaces)
+        let client = USDAClient(apiKey: key.isEmpty ? USDAClient.demoKey : key)
+        return try await client.search(query: query)
+    }
+}
+
 extension Food {
     /// Build a library Food from an Open Food Facts result (nutriments are per-100g).
     static func from(_ r: RemoteFood) -> Food {

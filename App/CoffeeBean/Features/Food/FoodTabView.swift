@@ -53,9 +53,11 @@ struct FoodTabView: View {
             }
         }
         .sheet(item: $addSlot, onDismiss: { pendingScan = false }) { slot in
-            AddFoodSheet(slot: slot, foods: foods, initialScreen: pendingScan ? .barcode : .browse) { food, servings in
-                log(food, servings: servings, slot: slot)
-            }
+            AddFoodSheet(slot: slot, foods: foods,
+                         initialScreen: pendingScan ? .barcode : .browse,
+                         usdaApiKey: profiles.first?.usdaApiKey ?? "",
+                         onLog: { food, servings in log(food, servings: servings, slot: slot) },
+                         onQuickAdd: { kcal, p, c, f in quickAdd(kcal: kcal, p: p, c: c, f: f, slot: slot) })
         }
         .onAppear {
             guard !didAutoOpen, ProcessInfo.processInfo.environment["CB_OPEN_ADD"] == "1" else { return }
@@ -98,6 +100,16 @@ struct FoodTabView: View {
             day: nav.selectedDay, mealSlotRaw: slot.rawValue,
             foodID: food.id, foodName: food.name, servingLabel: food.servingLabel, quantity: servings,
             kcal: m.kcal, proteinG: m.protein, carbG: m.carb, fatG: m.fat,
+            loggedAt: nav.isToday ? Date() : nav.selectedDay))
+    }
+
+    /// MFP-style quick add: calories (+optional macros) with no library food.
+    private func quickAdd(kcal: Double, p: Double, c: Double, f: Double, slot: MealSlot) {
+        let detail = (p + c + f) > 0 ? "P \(Int(p)) · C \(Int(c)) · F \(Int(f))" : "calories only"
+        context.insert(FoodLogEntry(
+            day: nav.selectedDay, mealSlotRaw: slot.rawValue,
+            foodID: nil, foodName: "Quick add", servingLabel: detail, quantity: 1,
+            kcal: kcal, proteinG: p, carbG: c, fatG: f,
             loggedAt: nav.isToday ? Date() : nav.selectedDay))
     }
 }

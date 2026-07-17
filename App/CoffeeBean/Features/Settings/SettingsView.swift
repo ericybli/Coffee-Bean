@@ -105,6 +105,16 @@ private struct SettingsForm: View {
                     row("Water goal", Units.volume(profile.waterGoalMl, system))
                 }
             }
+
+            Section {
+                TextField("USDA API key (optional)", text: $profile.usdaApiKey)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+            } header: {
+                Text("Data sources")
+            } footer: {
+                Text("Generic-food search uses USDA FoodData Central. Without a key it shares the public DEMO_KEY (30 searches/hour). Free keys: fdc.nal.usda.gov/api-key-signup")
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Theme.background)

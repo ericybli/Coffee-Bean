@@ -1,0 +1,36 @@
+{
+  "totalHits": 2094,
+  "currentPage": 1,
+  "foods": [
+    {
+      "fdcId": 171077,
+      "description": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        { "nutrientId": 1008, "nutrientNumber": "208", "nutrientName": "Energy", "unitName": "KCAL", "value": 165 },
+        { "nutrientId": 1003, "nutrientNumber": "203", "nutrientName": "Protein", "unitName": "G", "value": 31.0 },
+        { "nutrientId": 1005, "nutrientNumber": "205", "nutrientName": "Carbohydrate, by difference", "unitName": "G", "value": 0.0 },
+        { "nutrientId": 1004, "nutrientNumber": "204", "nutrientName": "Total lipid (fat)", "unitName": "G", "value": 3.57 }
+      ]
+    },
+    {
+      "fdcId": 999999,
+      "description": "Mystery item without energy",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        { "nutrientId": 1003, "nutrientNumber": "203", "nutrientName": "Protein", "unitName": "G", "value": 10 }
+      ]
+    },
+    {
+      "fdcId": 2112947,
+      "description": "GRILLED CHICKEN BREAST STRIPS",
+      "dataType": "Branded",
+      "brandOwner": "Tyson Foods Inc.",
+      "gtinUpc": "023700043177",
+      "foodNutrients": [
+        { "nutrientId": 1008, "nutrientNumber": "208", "nutrientName": "Energy", "unitName": "KCAL", "value": 106 },
+        { "nutrientId": 1003, "nutrientNumber": "203", "nutrientName": "Protein", "unitName": "G", "value": 20.0 }
+      ]
+    }
+  ]
+}

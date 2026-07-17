@@ -86,6 +86,8 @@ struct MealDiaryCard: View {
     }
 
     private func servingText(_ e: FoodLogEntry) -> String {
+        // Quick-add entries have no library food; their label is the whole story.
+        guard e.foodID != nil else { return e.servingLabel }
         let q = e.quantity == e.quantity.rounded() ? String(Int(e.quantity)) : String(format: "%.1f", e.quantity)
         return "\(q) × \(e.servingLabel)"
     }

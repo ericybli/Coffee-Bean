@@ -61,11 +61,26 @@ public struct OpenFoodFactsClient: FoodSource {
     }
 
     /// Free-text product search, for foods without a barcode at hand.
+    /// The legacy search endpoint sheds load with quick 5xx replies about half
+    /// the time; a short retry usually gets through.
     public func search(query: String, pageSize: Int = 20) async throws -> [RemoteFood] {
         var request = URLRequest(url: searchURL(query: query, pageSize: pageSize))
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
-        let (data, _) = try await session.data(for: request)
-        let decoded = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
-        return OpenFoodFactsParser.parseSearch(decoded)
+        var lastError: Error = URLError(.badServerResponse)
+        for attempt in 0..<3 {
+            if attempt > 0 { try await Task.sleep(nanoseconds: 600_000_000) }
+            do {
+                let (data, response) = try await session.data(for: request)
+                if let http = response as? HTTPURLResponse, (500...599).contains(http.statusCode) {
+                    lastError = URLError(.badServerResponse)
+                    continue
+                }
+                let decoded = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
+                return OpenFoodFactsParser.parseSearch(decoded)
+            } catch {
+                lastError = error
+            }
+        }
+        throw lastError
     }
 }
