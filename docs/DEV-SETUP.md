@@ -240,8 +240,13 @@ Scripts/build-ipa.sh        # → dist/CoffeeBean.ipa (unsigned; AltStore signs 
 ```
 
 ### 8.2 One-time setup
-1. **Mac:** download **AltServer** from https://altstore.io → move to /Applications →
-   open (menu-bar icon appears).
+1. **Mac:** download **AltServer (AltStore Classic)** — direct link:
+   https://cdn.altstore.io/file/altstore/altserver.zip (macOS 11+) → unzip → move
+   AltServer.app to /Applications → open (menu-bar icon appears).
+   *Ignore "AltStore PAL" on the homepage — that's the EU/Japan/Brazil marketplace
+   version; Classic is the worldwide sideloading one and is what we use in the US.
+   The AltStore iPhone app is installed BY AltServer over the cable (step 3), not
+   downloaded on the phone.*
 2. **iPhone:** plug in via USB-C → trust the Mac in Finder if prompted.
 3. Menu bar → AltServer icon → **Install AltStore → (your iPhone)** → sign in with a
    **personal (free) Apple ID**. (2FA: AltServer walks you through it. If you prefer,
