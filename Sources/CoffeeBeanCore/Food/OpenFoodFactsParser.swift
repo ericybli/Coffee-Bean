@@ -5,9 +5,18 @@ public enum OpenFoodFactsParser {
 
     /// Normalize an OFF response to a usable RemoteFood, or nil if not found / not nutritionally usable.
     public static func parse(_ response: OFFResponse, barcode: String) -> RemoteFood? {
-        // "found" requires status == 1 and a product with a name.
-        guard response.status == 1, let p = response.product,
-              let name = p.productName, !name.isEmpty else { return nil }
+        // "found" requires status == 1 and a product.
+        guard response.status == 1, let p = response.product else { return nil }
+        return parseProduct(p, barcode: barcode)
+    }
+
+    /// Normalize a text-search page, dropping products without a name or usable energy.
+    public static func parseSearch(_ response: OFFSearchResponse) -> [RemoteFood] {
+        response.products.compactMap { parseProduct($0, barcode: $0.code) }
+    }
+
+    private static func parseProduct(_ p: OFFProduct, barcode: String?) -> RemoteFood? {
+        guard let name = p.productName, !name.isEmpty else { return nil }
 
         // Usable energy: direct kcal, else derive from kJ.
         let kcal: Double?

@@ -1,0 +1,38 @@
+{
+  "count": 4,
+  "page": 1,
+  "page_size": 20,
+  "products": [
+    {
+      "code": "0001",
+      "product_name": "Grilled Chicken Breast",
+      "brands": "Tyson",
+      "serving_size": "100 g",
+      "nutriments": {
+        "energy-kcal_100g": 165,
+        "proteins_100g": 31,
+        "carbohydrates_100g": 0,
+        "fat_100g": 3.6
+      }
+    },
+    {
+      "code": "0002",
+      "product_name": "Chicken Breast Strips",
+      "nutriments": {
+        "energy-kj_100g": "690",
+        "proteins_100g": 30
+      }
+    },
+    {
+      "code": "0003",
+      "product_name": "No Nutrition Item",
+      "nutriments": {}
+    },
+    {
+      "code": "0004",
+      "nutriments": {
+        "energy-kcal_100g": 100
+      }
+    }
+  ]
+}

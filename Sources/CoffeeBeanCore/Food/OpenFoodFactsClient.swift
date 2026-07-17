@@ -39,4 +39,27 @@ public struct OpenFoodFactsClient: FoodSource {
         let decoded = try JSONDecoder().decode(OFFResponse.self, from: data)
         return OpenFoodFactsParser.parse(decoded, barcode: barcode)
     }
+
+    public func searchURL(query: String, pageSize: Int = 20) -> URL {
+        var comps = URLComponents(url: baseURL.appendingPathComponent("cgi/search.pl"),
+                                  resolvingAgainstBaseURL: false)!
+        comps.queryItems = [
+            URLQueryItem(name: "search_terms", value: query),
+            URLQueryItem(name: "search_simple", value: "1"),
+            URLQueryItem(name: "action", value: "process"),
+            URLQueryItem(name: "json", value: "1"),
+            URLQueryItem(name: "page_size", value: String(pageSize)),
+            URLQueryItem(name: "fields", value: Self.fields)
+        ]
+        return comps.url!
+    }
+
+    /// Free-text product search, for foods without a barcode at hand.
+    public func search(query: String, pageSize: Int = 20) async throws -> [RemoteFood] {
+        var request = URLRequest(url: searchURL(query: query, pageSize: pageSize))
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        let (data, _) = try await session.data(for: request)
+        let decoded = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
+        return OpenFoodFactsParser.parseSearch(decoded)
+    }
 }

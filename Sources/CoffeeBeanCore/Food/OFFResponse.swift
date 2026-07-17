@@ -25,7 +25,14 @@ public struct OFFResponse: Decodable, Sendable {
     }
 }
 
+/// Text-search response (`cgi/search.pl?json=1`): a page of products, each carrying its own code.
+public struct OFFSearchResponse: Decodable, Sendable {
+    public let count: Int?
+    public let products: [OFFProduct]
+}
+
 public struct OFFProduct: Decodable, Sendable {
+    public let code: String?
     public let productName: String?
     public let brands: String?
     public let servingSize: String?
@@ -35,6 +42,7 @@ public struct OFFProduct: Decodable, Sendable {
     public let nutriments: [String: Double]
 
     enum CodingKeys: String, CodingKey {
+        case code
         case productName = "product_name"
         case brands
         case servingSize = "serving_size"
@@ -46,6 +54,10 @@ public struct OFFProduct: Decodable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        // Barcodes are usually strings but occasionally raw numbers.
+        if let s = try? c.decodeIfPresent(String.self, forKey: .code) { code = s }
+        else if let i = try? c.decodeIfPresent(Int.self, forKey: .code) { code = String(i) }
+        else { code = nil }
         productName = try c.decodeIfPresent(String.self, forKey: .productName)
         brands = try c.decodeIfPresent(String.self, forKey: .brands)
         servingSize = try c.decodeIfPresent(String.self, forKey: .servingSize)
