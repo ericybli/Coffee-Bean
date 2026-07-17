@@ -20,6 +20,15 @@ struct EditPresetsSheet: View {
                             Text(Units.volume(preset.volumeMl, system)).foregroundStyle(Theme.textSecondary)
                         }
                     }
+                    Stepper(value: caffeineBinding(preset), in: 0...500, step: 5) {
+                        HStack {
+                            Image(systemName: "bolt.fill").font(.caption).foregroundStyle(Theme.accent)
+                            Text("Caffeine").foregroundStyle(Theme.textPrimary)
+                            Spacer()
+                            Text("\(Int(preset.caffeineMg)) mg").monospacedDigit()
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                    }
                 }
             }
             .scrollContentBackground(.hidden)
@@ -33,5 +42,9 @@ struct EditPresetsSheet: View {
 
     private func binding(_ preset: DrinkPreset) -> Binding<Double> {
         Binding(get: { preset.volumeMl }, set: { preset.volumeMl = $0 })
+    }
+
+    private func caffeineBinding(_ preset: DrinkPreset) -> Binding<Double> {
+        Binding(get: { preset.caffeineMg }, set: { preset.caffeineMg = $0 })
     }
 }

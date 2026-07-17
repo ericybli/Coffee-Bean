@@ -10,13 +10,15 @@ final class DrinkPreset {
     var drinkTypeRaw: String = "water"
     var iconName: String = "drop.fill"
     var sortIndex: Int = 0
+    var caffeineMg: Double = 0
 
     init(label: String, volumeMl: Double, drinkTypeRaw: String = "water",
-         iconName: String = "drop.fill", sortIndex: Int = 0) {
+         iconName: String = "drop.fill", sortIndex: Int = 0, caffeineMg: Double = 0) {
         self.label = label
         self.volumeMl = volumeMl
         self.drinkTypeRaw = drinkTypeRaw
         self.iconName = iconName
         self.sortIndex = sortIndex
+        self.caffeineMg = caffeineMg
     }
 }

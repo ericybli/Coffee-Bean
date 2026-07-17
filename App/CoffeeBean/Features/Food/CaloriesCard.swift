@@ -4,6 +4,8 @@ struct CaloriesCard: View {
     let consumed: Double
     let target: Double
     let tdee: Double
+    /// true once the adaptive engine (intake + weight trend) drives the TDEE.
+    var tdeeMeasured: Bool = false
 
     private var remaining: Double { target - consumed }
     private var fraction: Double { target > 0 ? consumed / target : 0 }
@@ -33,6 +35,6 @@ struct CaloriesCard: View {
 
     private var caption: String {
         let s = surplus >= 0 ? "+\(surplus.grouped) kcal surplus" : "\((-surplus).grouped) kcal deficit"
-        return "TDEE \(tdee.grouped) (est.) · \(s)"
+        return "TDEE \(tdee.grouped) (\(tdeeMeasured ? "measured" : "est.")) · \(s)"
     }
 }

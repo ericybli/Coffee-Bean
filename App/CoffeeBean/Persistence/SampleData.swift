@@ -49,7 +49,7 @@ enum SampleData {
             DrinkPreset(label: "Bottle", volumeMl: 500, drinkTypeRaw: "water",
                         iconName: "waterbottle.fill", sortIndex: 1),
             DrinkPreset(label: "Coffee", volumeMl: 300, drinkTypeRaw: "coffee",
-                        iconName: "cup.and.saucer.fill", sortIndex: 2),
+                        iconName: "cup.and.saucer.fill", sortIndex: 2, caffeineMg: 95),
         ]
     }
 
@@ -59,7 +59,8 @@ enum SampleData {
         let now = Date()
         func at(_ h: Int, _ m: Int) -> Date { cal.date(bySettingHour: h, minute: m, second: 0, of: now) ?? now }
         return [
-            DrinkLog(timestamp: at(8, 15), volumeMl: 300, drinkTypeRaw: "coffee", name: "Coffee"),
+            DrinkLog(timestamp: at(8, 15), volumeMl: 300, drinkTypeRaw: "coffee", name: "Coffee",
+                     caffeineMg: 95),
             DrinkLog(timestamp: at(10, 30), volumeMl: 500, drinkTypeRaw: "water", name: "Bottle"),
             DrinkLog(timestamp: at(13, 0), volumeMl: 250, drinkTypeRaw: "water", name: "Glass"),
             DrinkLog(timestamp: at(15, 45), volumeMl: 250, drinkTypeRaw: "water", name: "Glass"),

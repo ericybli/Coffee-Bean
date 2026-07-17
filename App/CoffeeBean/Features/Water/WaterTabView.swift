@@ -20,6 +20,9 @@ struct WaterTabView: View {
         allLogs.filter { Calendar.current.isDate($0.timestamp, inSameDayAs: nav.selectedDay) }
     }
     private var consumedMl: Double { dayLogs.reduce(0) { $0 + $1.volumeMl } }
+    private var dayCaffeineMg: Double { dayLogs.reduce(0) { $0 + ($1.caffeineMg ?? 0) } }
+    /// FDA guideline for healthy adults.
+    private let caffeineLimitMg = 400.0
     /// Timestamp for a log on the selected day (now for today, noon for backfilled days).
     private var logTimestamp: Date {
         nav.isToday
@@ -49,15 +52,17 @@ struct WaterTabView: View {
                         }
                     }
 
+                    if dayCaffeineMg > 0 { caffeineCard }
                     if !dayLogs.isEmpty { dayLogCard }
                 }
                 .padding(20)
             }
         }
         .sheet(isPresented: $showAddDrink) {
-            AddDrinkSheet(system: system) { name, volume, typeRaw in
+            AddDrinkSheet(system: system) { name, volume, typeRaw, caffeine in
                 context.insert(DrinkLog(timestamp: logTimestamp, volumeMl: volume,
-                                        drinkTypeRaw: typeRaw, name: name))
+                                        drinkTypeRaw: typeRaw, name: name,
+                                        caffeineMg: caffeine > 0 ? caffeine : nil))
             }
         }
         .sheet(isPresented: $showEditPresets) { EditPresetsSheet(presets: presets, system: system) }
@@ -96,6 +101,28 @@ struct WaterTabView: View {
         .buttonStyle(.plain)
     }
 
+    /// Daily caffeine vs the FDA 400 mg guideline; only appears once caffeine is logged.
+    private var caffeineCard: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Caffeine").font(.headline).foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Text("\(dayCaffeineMg.grouped) / \(caffeineLimitMg.grouped) mg")
+                        .font(.subheadline).monospacedDigit().foregroundStyle(Theme.textSecondary)
+                }
+                ProgressBar(fraction: dayCaffeineMg / caffeineLimitMg,
+                            color: dayCaffeineMg > caffeineLimitMg ? Theme.negative : Theme.accent)
+                Text(dayCaffeineMg > caffeineLimitMg
+                     ? "Over the FDA 400 mg/day guideline"
+                     : "FDA guideline: up to 400 mg/day")
+                    .font(.caption).foregroundStyle(
+                        dayCaffeineMg > caffeineLimitMg ? Theme.negative : Theme.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+
     private var dayLogCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
@@ -106,6 +133,13 @@ struct WaterTabView: View {
                             .font(.caption).foregroundStyle(Theme.textSecondary)
                             .frame(width: 56, alignment: .leading)
                         Text(log.name).foregroundStyle(Theme.textPrimary)
+                        if let mg = log.caffeineMg, mg > 0 {
+                            Text("\(Int(mg)) mg")
+                                .font(.caption2).monospacedDigit()
+                                .padding(.horizontal, 6).padding(.vertical, 2)
+                                .background(Theme.accent.opacity(0.15), in: Capsule())
+                                .foregroundStyle(Theme.accent)
+                        }
                         Spacer()
                         Text(Units.volume(log.volumeMl, system)).monospacedDigit()
                             .foregroundStyle(Theme.textSecondary)
@@ -123,6 +157,7 @@ struct WaterTabView: View {
 
     private func addFromPreset(_ preset: DrinkPreset) {
         context.insert(DrinkLog(timestamp: logTimestamp, volumeMl: preset.volumeMl,
-                                drinkTypeRaw: preset.drinkTypeRaw, name: preset.label))
+                                drinkTypeRaw: preset.drinkTypeRaw, name: preset.label,
+                                caffeineMg: preset.caffeineMg > 0 ? preset.caffeineMg : nil))
     }
 }

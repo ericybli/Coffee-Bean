@@ -28,6 +28,36 @@ struct FoodTabView: View {
                            latestWeightKg: weights.first?.massKg).value
     }
 
+    /// Adaptive TDEE (§5.3): empirical maintenance from the last 3 weeks of
+    /// intake + weight trend. Replaces RMR×PAL only once trustworthy
+    /// (≥14 logged days and ≥8 weigh-ins in the window).
+    private var adaptiveTDEE: Double? {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        guard let windowStart = cal.date(byAdding: .day, value: -21, to: today) else { return nil }
+
+        // Complete days only — today and sub-1000 kcal days are partial logs
+        // that would drag the mean down and fake a deficit.
+        let byDay = Dictionary(grouping: entries.filter { $0.day >= windowStart && $0.day < today }) {
+            cal.startOfDay(for: $0.day)
+        }
+        let dayTotals = byDay.values.map { $0.reduce(0) { $0 + $1.kcal } }.filter { $0 >= 1000 }
+        guard !dayTotals.isEmpty else { return nil }
+        let meanIntake = dayTotals.reduce(0, +) / Double(dayTotals.count)
+
+        let windowWeighIns = weights.filter { $0.date >= windowStart }
+            .map { WeighIn(date: $0.date, massKg: $0.massKg) }
+            .sorted { $0.date < $1.date }
+        let points = TrendEngine(alpha: 0.28).trend(from: windowWeighIns)
+        guard let first = points.first, let last = points.last, points.count >= 2 else { return nil }
+        let windowDays = max(1, cal.dateComponents([.day], from: first.date, to: last.date).day ?? 1)
+
+        let result = AdaptiveTDEE.evaluate(
+            meanIntakeKcal: meanIntake, trendStartKg: first.trend, trendEndKg: last.trend,
+            windowDays: windowDays, daysLogged: dayTotals.count, weighIns: windowWeighIns.count)
+        return result.isTrustworthy ? result.maintenanceKcal : nil
+    }
+
     var body: some View {
         let day = dayEntries
         let consumed = day.reduce(0) { $0 + $1.kcal }
@@ -36,12 +66,14 @@ struct FoodTabView: View {
             carbG: day.reduce(0) { $0 + $1.carbG },
             fatG: day.reduce(0) { $0 + $1.fatG })
         let bySlot = Dictionary(grouping: day) { MealSlot(rawValue: $0.mealSlotRaw) ?? .extra }
-        let targets = NutritionTargets(rmr: rmr, profile: profiles.first)
+        let adaptive = adaptiveTDEE
+        let targets = NutritionTargets(rmr: rmr, profile: profiles.first, adaptiveTDEE: adaptive)
 
         return DatedScreenScaffold {
             ScrollView {
                 VStack(spacing: 16) {
-                    CaloriesCard(consumed: consumed, target: targets.calorieTarget, tdee: targets.tdee)
+                    CaloriesCard(consumed: consumed, target: targets.calorieTarget,
+                                 tdee: targets.tdee, tdeeMeasured: adaptive != nil)
                     MacrosCard(consumed: macros, target: targets.macroTargets)
                     MealDiaryCard(entriesBySlot: bySlot,
                                   allowAdd: !nav.isFuture,
